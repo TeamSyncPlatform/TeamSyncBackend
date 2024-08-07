@@ -9,4 +9,5 @@ import java.util.Collection;
 @Repository
 public interface IPostRepository extends JpaRepository<Post, Long> {
     Collection<Post> findByIsDeletedFalse();
+    Post findByIdAndIsDeletedIsFalse(Long id);
 }

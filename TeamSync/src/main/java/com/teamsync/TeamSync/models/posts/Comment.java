@@ -38,11 +38,16 @@ public class Comment {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    private Boolean isDeleted = false;
     public void addReaction(Reaction reaction) {
         reactions.put(reaction.getUserId(), reaction.getType());
     }
 
     public void removeReaction(Reaction reaction) {
         reactions.remove(reaction.getUserId());
+    }
+
+    public void delete(){
+        isDeleted = true;
     }
 }
