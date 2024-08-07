@@ -3,10 +3,9 @@ package com.teamsync.TeamSync.models.posts;
 import com.teamsync.TeamSync.models.users.User;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Cascade;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Data
@@ -27,8 +26,15 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Attachment> attachments = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Reaction> reactions = new ArrayList<>();
+//    @ElementCollection
+//    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+//    private List<Reaction> reactions = new ArrayList<>();
+
+    @ElementCollection
+    @MapKeyColumn(name = "user_id")
+    @Column(name = "reaction_type")
+    @CollectionTable(name = "post_reactions", joinColumns = @JoinColumn(name = "post_id"))
+    private Map<Long, ReactionType> reactions = new HashMap<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User author;
@@ -42,11 +48,11 @@ public class Post {
     }
 
     public void addReaction(Reaction reaction) {
-        reactions.add(reaction);
+        reactions.put(reaction.getUserId(), reaction.getType());
     }
 
     public void removeReaction(Reaction reaction) {
-        reactions.remove(reaction);
+        reactions.remove(reaction.getUserId());
     }
 
     public void addAttachment(Attachment attachment) {

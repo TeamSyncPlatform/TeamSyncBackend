@@ -4,6 +4,7 @@ import com.teamsync.TeamSync.dtos.posts.comment.CommentDTO;
 import com.teamsync.TeamSync.dtos.posts.comment.CreateCommentDTO;
 import com.teamsync.TeamSync.dtos.posts.comment.UpdateCommentDTO;
 import com.teamsync.TeamSync.models.posts.Comment;
+import com.teamsync.TeamSync.models.posts.Reaction;
 import com.teamsync.TeamSync.services.posts.interfaces.ICommentService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -56,6 +57,18 @@ public class CommentController {
         if (comment == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(mapper.map(comment, CommentDTO.class), HttpStatus.OK);
+    }
+
+    @PostMapping("/{commentId}/reactions")
+    public ResponseEntity<CommentDTO> addReaction(@PathVariable Long commentId, @RequestBody Reaction reaction) {
+        Comment comment = service.addReaction(commentId, reaction);
+        return new ResponseEntity<>(mapper.map(comment, CommentDTO.class), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{commentId}/reactions")
+    public ResponseEntity<CommentDTO> removeReaction(@PathVariable Long commentId, @RequestBody Reaction reaction) {
+        Comment comment = service.removeReaction(commentId, reaction);
         return new ResponseEntity<>(mapper.map(comment, CommentDTO.class), HttpStatus.OK);
     }
 }

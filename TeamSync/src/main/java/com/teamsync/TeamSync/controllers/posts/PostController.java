@@ -1,9 +1,12 @@
 package com.teamsync.TeamSync.controllers.posts;
 
+import com.teamsync.TeamSync.dtos.posts.comment.CommentDTO;
 import com.teamsync.TeamSync.dtos.posts.post.CreatePostDTO;
 import com.teamsync.TeamSync.dtos.posts.post.PostDTO;
 import com.teamsync.TeamSync.dtos.posts.post.UpdatePostDTO;
+import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Post;
+import com.teamsync.TeamSync.models.posts.Reaction;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -56,6 +59,18 @@ public class PostController {
         if (post == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(mapper.map(post, PostDTO.class), HttpStatus.OK);
+    }
+
+    @PostMapping("/{postId}/reactions")
+    public ResponseEntity<PostDTO> addReaction(@PathVariable Long postId, @RequestBody Reaction reaction) {
+        Post post = service.addReaction(postId, reaction);
+        return new ResponseEntity<>(mapper.map(post, PostDTO.class), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{postId}/reactions")
+    public ResponseEntity<PostDTO> removeReaction(@PathVariable Long postId, @RequestBody Reaction reaction) {
+        Post post = service.removeReaction(postId, reaction);
         return new ResponseEntity<>(mapper.map(post, PostDTO.class), HttpStatus.OK);
     }
 }
