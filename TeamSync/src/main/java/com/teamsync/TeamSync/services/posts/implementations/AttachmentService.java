@@ -1,7 +1,10 @@
 package com.teamsync.TeamSync.services.posts.implementations;
 
 import com.teamsync.TeamSync.models.posts.Attachment;
+import com.teamsync.TeamSync.models.posts.Comment;
+import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.repositories.posts.IAttachmentRepository;
+import com.teamsync.TeamSync.repositories.posts.IPostRepository;
 import com.teamsync.TeamSync.services.posts.interfaces.IAttachmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +17,9 @@ import java.util.Collection;
 public class AttachmentService implements IAttachmentService {
     @Autowired
     private IAttachmentRepository attachmentRepository;
+
+    @Autowired
+    private IPostRepository postRepository;
 
     @Override
     public Collection<Attachment> getAll() {
@@ -28,7 +34,18 @@ public class AttachmentService implements IAttachmentService {
 
     @Override
     public Attachment create(Attachment attachment) throws ResponseStatusException {
-        return attachmentRepository.save(attachment);
+        Post post = postRepository.findById(attachment.getPost().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        attachment.setPost(post);
+
+        Attachment savedAttachment = attachmentRepository.save(attachment);
+
+        // Update the post's attachments list
+        post.addAttachment(savedAttachment);
+        postRepository.save(post);
+
+        return savedAttachment;
     }
 
     @Override
