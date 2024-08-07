@@ -18,11 +18,15 @@ public class Comment {
 
     private String content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User author;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Reaction> reactions = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
 
     public void addReaction(Reaction reaction) {
         reactions.add(reaction);

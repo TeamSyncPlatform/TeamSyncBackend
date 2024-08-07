@@ -17,7 +17,7 @@ public class Channel {
 
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
 
     public void addPost(Post post) {

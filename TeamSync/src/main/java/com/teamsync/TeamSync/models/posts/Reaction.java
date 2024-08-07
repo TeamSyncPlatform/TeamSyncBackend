@@ -14,7 +14,8 @@ public class Reaction {
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "reactions_id_generator")
     private Long id;
 
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Enumerated

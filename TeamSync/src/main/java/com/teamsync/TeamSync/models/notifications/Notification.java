@@ -24,7 +24,7 @@ public class Notification {
 
     private Boolean isRead = false;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     public Notification(String message, NotificationType type, Date creationDate, User user) {

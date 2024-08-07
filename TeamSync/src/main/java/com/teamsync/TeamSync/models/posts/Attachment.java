@@ -13,4 +13,7 @@ public class Attachment {
     private Long id;
 
     private String path;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
 }
