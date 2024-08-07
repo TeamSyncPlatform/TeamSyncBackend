@@ -20,11 +20,21 @@ public class Channel {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
+
+    private Boolean isDeleted = false;
+
     public void addPost(Post post) {
         posts.add(post);
     }
     public void removePost(Post post) {
         posts.remove(post);
+    }
+
+    public void delete(){
+        isDeleted = true;
     }
 
 }

@@ -19,12 +19,13 @@ public class Group {
 
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Channel> channels = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<User> members = new ArrayList<>();
+
+    private Boolean isDeleted = false;
 
     public void addChannel(Channel channel) {
         channels.add(channel);
@@ -38,5 +39,8 @@ public class Group {
     }
     public void removeMember(User user) {
         members.remove(user);
+    }
+    public void delete(){
+        isDeleted = true;
     }
 }
