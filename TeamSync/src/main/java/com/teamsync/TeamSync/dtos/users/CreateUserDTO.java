@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Data
 public class CreateUserDTO {
-    private UUID externalId;
+    private UUID externalIdentification;
     private String email;
     private String firstName;
     private String lastName;
@@ -21,5 +21,5 @@ public class CreateUserDTO {
     private String department;
     private String jobTitle;
     private List<String> skills;
-    private Set<NotificationType> ignoredNotifications;
+//    private Set<NotificationType> ignoredNotifications;
 }

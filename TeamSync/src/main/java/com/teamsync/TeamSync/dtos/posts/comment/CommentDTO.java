@@ -1,5 +1,7 @@
 package com.teamsync.TeamSync.dtos.posts.comment;
 
+import com.teamsync.TeamSync.dtos.posts.reaction.ReactionReference;
+import com.teamsync.TeamSync.dtos.users.UserReference;
 import com.teamsync.TeamSync.models.posts.Reaction;
 import com.teamsync.TeamSync.models.users.User;
 import jakarta.persistence.CascadeType;
@@ -14,6 +16,6 @@ import java.util.List;
 public class CommentDTO {
     private Long id;
     private String content;
-    private User author;
-    private List<Reaction> reactions;
+    private UserReference author;
+    private List<ReactionReference> reactions;
 }

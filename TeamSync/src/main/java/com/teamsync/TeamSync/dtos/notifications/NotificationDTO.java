@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.dtos.notifications;
 
+import com.teamsync.TeamSync.dtos.users.UserReference;
 import com.teamsync.TeamSync.models.notifications.NotificationType;
 import com.teamsync.TeamSync.models.users.User;
 import lombok.Data;
@@ -13,5 +14,5 @@ public class NotificationDTO {
     private NotificationType type;
     private Date creationDate;
     private Boolean isRead;
-    private User user;
+    private UserReference user;
 }

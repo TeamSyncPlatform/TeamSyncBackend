@@ -3,6 +3,7 @@ package com.teamsync.TeamSync.models.users;
 import com.teamsync.TeamSync.models.notifications.NotificationType;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Cascade;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +19,7 @@ public class User{
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "user_id_generator")
     private Long id;
 
-    private UUID externalId;
+    private UUID externalIdentification;
 
     @Column(unique = true)
     private String email;
@@ -42,6 +43,7 @@ public class User{
     private String jobTitle;
 
     @ElementCollection
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<String> skills;
 
     private Set<NotificationType> ignoredNotifications = new HashSet<NotificationType>();

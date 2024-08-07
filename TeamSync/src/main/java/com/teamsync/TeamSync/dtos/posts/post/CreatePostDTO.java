@@ -1,5 +1,9 @@
 package com.teamsync.TeamSync.dtos.posts.post;
 
+import com.teamsync.TeamSync.dtos.posts.attachment.AttachmentReference;
+import com.teamsync.TeamSync.dtos.posts.comment.CommentReference;
+import com.teamsync.TeamSync.dtos.posts.reaction.ReactionReference;
+import com.teamsync.TeamSync.dtos.users.UserReference;
 import com.teamsync.TeamSync.models.posts.Attachment;
 import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Reaction;
@@ -12,8 +16,8 @@ import java.util.List;
 public class CreatePostDTO {
     private String content;
     private Date creationDate;
-    private List<Comment> comments;
-    private List<Attachment> attachments;
-    private List<Reaction> reactions;
-    private User author;
+    private List<CommentReference> comments;
+    private List<AttachmentReference> attachments;
+    private List<ReactionReference> reactions;
+    private UserReference author;
 }

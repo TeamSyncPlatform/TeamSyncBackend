@@ -16,7 +16,7 @@ import java.util.UUID;
 @Data
 public class UserDTO {
     private Long id;
-    private UUID externalId;
+    private UUID externalIdentification;
     private String email;
     private String firstName;
     private String lastName;
