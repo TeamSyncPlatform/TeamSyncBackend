@@ -1,0 +1,14 @@
+package com.teamsync.TeamSync.services.groups.interfaces;
+
+import com.teamsync.TeamSync.models.groups.Group;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Collection;
+
+public interface IGroupService {
+    Collection<Group> getAll();
+    Group get(Long groupId) throws ResponseStatusException;
+    Group create(Group group) throws ResponseStatusException;
+    Group update(Group group) throws ResponseStatusException;
+    Group remove(Long groupId);
+}
