@@ -17,13 +17,12 @@ public class GroupService implements IGroupService {
 
     @Override
     public Collection<Group> getAll() {
-        return groupRepository.findAll();
+        return groupRepository.findByIsDeletedFalse();
     }
 
     @Override
     public Group get(Long groupId) throws ResponseStatusException {
-        return groupRepository.findById(groupId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found"));
+        return getExistingGroup(groupId);
     }
 
     @Override
@@ -33,17 +32,30 @@ public class GroupService implements IGroupService {
 
     @Override
     public Group update(Group group) throws ResponseStatusException {
-        if (!groupRepository.existsById(group.getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
-        }
+        Group result = getExistingGroup(group.getId());
         return groupRepository.save(group);
     }
 
     @Override
-    public Group remove(Long groupId) {
+    public Group removePhysical(Long groupId) {
+        Group group = getExistingGroup(groupId);
+        groupRepository.delete(group);
+        return group;
+    }
+
+    @Override
+    public Group removeLogical(Long groupId) {
+        Group group = getExistingGroup(groupId);
+        group.delete();
+        return groupRepository.save(group);
+    }
+
+    private Group getExistingGroup(Long groupId){
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found"));
-        groupRepository.delete(group);
+        if(group.getIsDeleted()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
+        }
         return group;
     }
 }

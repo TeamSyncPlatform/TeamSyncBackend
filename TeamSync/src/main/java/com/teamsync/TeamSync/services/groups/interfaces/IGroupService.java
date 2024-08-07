@@ -10,5 +10,6 @@ public interface IGroupService {
     Group get(Long groupId) throws ResponseStatusException;
     Group create(Group group) throws ResponseStatusException;
     Group update(Group group) throws ResponseStatusException;
-    Group remove(Long groupId);
+    Group removePhysical(Long groupId);
+    Group removeLogical(Long groupId);
 }

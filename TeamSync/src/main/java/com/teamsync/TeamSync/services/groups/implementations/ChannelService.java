@@ -26,7 +26,7 @@ public class ChannelService implements IChannelService {
 
     @Override
     public Collection<Channel> getAll() {
-        return channelRepository.findAll();
+        return channelRepository.findByIsDeletedFalse();
     }
 
     @Override
