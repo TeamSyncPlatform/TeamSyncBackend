@@ -39,6 +39,8 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     private User author;
 
+    private Boolean isDeleted = false;
+
     public void addComment(Comment comment) {
         comments.add(comment);
     }
@@ -61,5 +63,9 @@ public class Post {
 
     public void removeAttachment(Attachment attachment) {
         attachments.remove(attachment);
+    }
+
+    public void delete(){
+        isDeleted = true;
     }
 }
