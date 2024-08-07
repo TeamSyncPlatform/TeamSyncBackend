@@ -1,7 +1,9 @@
 package com.teamsync.TeamSync.services.posts.implementations;
 
 import com.teamsync.TeamSync.models.posts.Comment;
+import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.repositories.posts.ICommentRepository;
+import com.teamsync.TeamSync.repositories.posts.IPostRepository;
 import com.teamsync.TeamSync.services.posts.interfaces.ICommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,10 @@ import java.util.Collection;
 
 @Service
 public class CommentService implements ICommentService {
+
+    @Autowired
+    private IPostRepository postRepository;
+
     @Autowired
     private ICommentRepository commentRepository;
 
@@ -28,7 +34,18 @@ public class CommentService implements ICommentService {
 
     @Override
     public Comment create(Comment comment) throws ResponseStatusException {
-        return commentRepository.save(comment);
+        Post post = postRepository.findById(comment.getPost().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        comment.setPost(post);
+
+        Comment savedComment = commentRepository.save(comment);
+
+        // Update the post's comments list
+        post.addComment(savedComment);
+        postRepository.save(post);
+
+        return savedComment;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.teamsync.TeamSync.services.posts.implementations;
 
 import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.repositories.posts.IPostRepository;
+import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,9 @@ import java.util.Collection;
 public class PostService implements IPostService {
     @Autowired
     private IPostRepository postRepository;
+
+    @Autowired
+    private IUserRepository userRepository;
 
     @Override
     public Collection<Post> getAll() {
@@ -28,6 +32,10 @@ public class PostService implements IPostService {
 
     @Override
     public Post create(Post post) throws ResponseStatusException {
+        if (!userRepository.existsById(post.getAuthor().getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
         return postRepository.save(post);
     }
 

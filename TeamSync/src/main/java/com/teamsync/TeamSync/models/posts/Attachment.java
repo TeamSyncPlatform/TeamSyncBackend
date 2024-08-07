@@ -15,5 +15,8 @@ public class Attachment {
     private String path;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+
 }
