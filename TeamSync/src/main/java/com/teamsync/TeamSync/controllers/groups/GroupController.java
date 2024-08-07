@@ -50,9 +50,18 @@ public class GroupController {
         return mapper.map(service.update(mapper.map(group, Group.class)), GroupDTO.class);
     }
 
+    @DeleteMapping("/{groupId}/physical")
+    public ResponseEntity<GroupDTO> removePhysical(@PathVariable Long groupId) {
+        Group group = service.removePhysical(groupId);
+        if (group == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(mapper.map(group, GroupDTO.class), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{groupId}")
-    public ResponseEntity<GroupDTO> remove(@PathVariable Long groupId) {
-        Group group = service.remove(groupId);
+    public ResponseEntity<GroupDTO> removeLogical(@PathVariable Long groupId) {
+        Group group = service.removeLogical(groupId);
         if (group == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
