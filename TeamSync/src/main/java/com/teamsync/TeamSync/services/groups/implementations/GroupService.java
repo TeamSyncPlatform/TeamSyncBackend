@@ -1,7 +1,9 @@
 package com.teamsync.TeamSync.services.groups.implementations;
 
 import com.teamsync.TeamSync.models.groups.Group;
+import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.groups.IGroupRepository;
+import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.groups.interfaces.IGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,9 @@ import java.util.Collection;
 public class GroupService implements IGroupService {
     @Autowired
     private IGroupRepository groupRepository;
+
+    @Autowired
+    private IUserRepository userRepository;
 
     @Override
     public Collection<Group> getAll() {
@@ -57,5 +62,32 @@ public class GroupService implements IGroupService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
         }
         return group;
+    }
+
+    private User getExistingUser(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if(user.getIsDeleted()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        return user;
+    }
+
+    public void addMember(Long groupId, Long userId){
+        Group group = getExistingGroup(groupId);
+        User user = getExistingUser(userId);
+        group.addMember(user);
+        user.addGroup(group);
+        groupRepository.save(group);
+        userRepository.save(user);
+    }
+
+    public void removeMember(Long groupId, Long userId){
+        Group group = getExistingGroup(groupId);
+        User user = getExistingUser(userId);
+        group.removeMember(user);
+        user.removeGroup(group);
+        groupRepository.save(group);
+        userRepository.save(user);
     }
 }

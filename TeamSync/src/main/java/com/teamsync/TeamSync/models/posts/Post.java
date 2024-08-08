@@ -26,10 +26,6 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Attachment> attachments = new ArrayList<>();
 
-//    @ElementCollection
-//    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-//    private List<Reaction> reactions = new ArrayList<>();
-
     @ElementCollection
     @MapKeyColumn(name = "user_id")
     @Column(name = "reaction_type")

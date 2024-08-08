@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Data
@@ -22,8 +24,15 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Channel> channels = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<User> members = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "group_members",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @MapKeyColumn(name = "user_id")
+    private Map<Long, User> members = new HashMap<>();
+
 
     private Boolean isDeleted = false;
 
@@ -35,10 +44,11 @@ public class Group {
     }
 
     public void addMember(User user) {
-        members.add(user);
+        members.put(user.getId(), user);
     }
+
     public void removeMember(User user) {
-        members.remove(user);
+        members.remove(user.getId());
     }
     public void delete(){
         isDeleted = true;

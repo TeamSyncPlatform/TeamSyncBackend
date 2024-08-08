@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.models.users;
 
+import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.models.notifications.NotificationType;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -46,6 +47,19 @@ public class User{
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<String> skills;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<Group> groups;
+
+    private Boolean isDeleted = false;
+
     private Set<NotificationType> ignoredNotifications = new HashSet<NotificationType>();
+
+    public void addGroup(Group group){
+        groups.add(group);
+    }
+
+    public void removeGroup(Group group){
+        groups.remove(group);
+    }
 
 }
