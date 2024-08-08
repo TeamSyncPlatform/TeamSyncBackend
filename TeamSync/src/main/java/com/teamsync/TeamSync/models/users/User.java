@@ -14,10 +14,9 @@ import java.util.UUID;
 @Entity
 @Data
 @Table(name = "users")
-@TableGenerator(name="user_id_generator", table="primary_keys", pkColumnName="key_pk", pkColumnValue="user", initialValue=1, valueColumnName="value_pk")
 public class User{
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "user_id_generator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private UUID externalIdentification;

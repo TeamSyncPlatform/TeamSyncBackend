@@ -5,6 +5,7 @@ import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.posts.Reaction;
 import com.teamsync.TeamSync.repositories.posts.ICommentRepository;
 import com.teamsync.TeamSync.repositories.posts.IPostRepository;
+import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.posts.interfaces.ICommentService;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class CommentService implements ICommentService {
     private ICommentRepository commentRepository;
 
     @Autowired
-    private ICommentRepository userRepository;
+    private IUserRepository userRepository;
 
     @Override
     public Collection<Comment> getAll() {
@@ -94,7 +95,7 @@ public class CommentService implements ICommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
         if(comment.getIsDeleted()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
         }
         return comment;
     }

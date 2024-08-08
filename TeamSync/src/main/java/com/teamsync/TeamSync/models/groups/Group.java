@@ -13,10 +13,9 @@ import java.util.Map;
 @Entity
 @Data
 @Table(name = "groups")
-@TableGenerator(name="groups_id_generator", table="primary_keys", pkColumnName="key_pk", pkColumnValue="group", initialValue = 1, valueColumnName="value_pk")
 public class Group {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "groups_id_generator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -30,9 +29,7 @@ public class Group {
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @MapKeyColumn(name = "user_id")
     private Map<Long, User> members = new HashMap<>();
-
 
     private Boolean isDeleted = false;
 
