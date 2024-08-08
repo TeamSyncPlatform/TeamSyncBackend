@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChannelService implements IChannelService {
@@ -26,12 +28,15 @@ public class ChannelService implements IChannelService {
 
     @Override
     public Collection<Channel> getAll() {
-        return channelRepository.findByIsDeletedFalse();
+        return channelRepository.findByIsDeletedFalse().stream()
+                .map(this::filterDeletedPosts)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Channel get(Long channelId) throws ResponseStatusException {
-        return getExistingChannel(channelId);
+        Channel channel = getExistingChannel(channelId);
+        return filterDeletedPosts(channel);
     }
 
     @Override
@@ -43,27 +48,27 @@ public class ChannelService implements IChannelService {
         group.addChannel(savedChannel);
         groupRepository.save(group);
 
-        return channel;
+        return filterDeletedPosts(savedChannel);
     }
 
     @Override
     public Channel update(Channel channel) throws ResponseStatusException {
-        Channel result = getExistingChannel(channel.getId());
-        return channelRepository.save(channel);
+        getExistingChannel(channel.getId()); // Check existence
+        return filterDeletedPosts(channelRepository.save(channel));
     }
 
     @Override
     public Channel removePhysical(Long channelId) {
         Channel channel = getExistingChannel(channelId);
         channelRepository.delete(channel);
-        return channel;
+        return filterDeletedPosts(channel);
     }
 
     @Override
     public Channel removeLogical(Long channelId) {
         Channel channel = getExistingChannel(channelId);
         channel.delete();
-        return channelRepository.save(channel);
+        return filterDeletedPosts(channelRepository.save(channel));
     }
 
     private Channel getExistingChannel(Long channelId){
@@ -82,5 +87,22 @@ public class ChannelService implements IChannelService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found");
         }
         return group;
+    }
+
+    private Channel filterDeletedPosts(Channel channel) {
+        Channel filteredChannel = new Channel();
+
+        filteredChannel.setId(channel.getId());
+        filteredChannel.setName(channel.getName());
+        filteredChannel.setGroup(channel.getGroup());
+        filteredChannel.setIsDeleted(channel.getIsDeleted());
+
+        List<Post> filteredPosts = channel.getPosts().stream()
+                .filter(post -> !post.getIsDeleted())
+                .collect(Collectors.toList());
+
+        filteredChannel.setPosts(filteredPosts);
+
+        return filteredChannel;
     }
 }

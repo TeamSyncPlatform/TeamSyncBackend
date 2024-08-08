@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.models.posts;
 
+import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.users.User;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -35,6 +36,10 @@ public class Post {
     private User author;
 
     private Boolean isDeleted = false;
+
+    @ManyToOne()
+    @JoinColumn(name = "post_id", nullable = false)
+    private Channel channel;
 
     public void addComment(Comment comment) {
         comments.add(comment);
