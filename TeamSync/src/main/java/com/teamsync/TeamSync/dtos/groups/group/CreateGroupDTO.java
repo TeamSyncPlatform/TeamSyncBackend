@@ -7,10 +7,11 @@ import com.teamsync.TeamSync.models.users.User;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class CreateGroupDTO {
     private String name;
     private List<ChannelReference> channels;
-    private List<UserReference> members;
+    private Map<Long, UserReference> members;
 }

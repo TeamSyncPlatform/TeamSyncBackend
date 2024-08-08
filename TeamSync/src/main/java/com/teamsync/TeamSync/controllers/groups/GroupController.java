@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -50,12 +51,41 @@ public class GroupController {
         return mapper.map(service.update(mapper.map(group, Group.class)), GroupDTO.class);
     }
 
-    @DeleteMapping("/{groupId}")
-    public ResponseEntity<GroupDTO> remove(@PathVariable Long groupId) {
-        Group group = service.remove(groupId);
+    @DeleteMapping("/{groupId}/physical")
+    public ResponseEntity<GroupDTO> removePhysical(@PathVariable Long groupId) {
+        Group group = service.removePhysical(groupId);
         if (group == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(mapper.map(group, GroupDTO.class), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{groupId}")
+    public ResponseEntity<GroupDTO> removeLogical(@PathVariable Long groupId) {
+        Group group = service.removeLogical(groupId);
+        if (group == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(mapper.map(group, GroupDTO.class), HttpStatus.OK);
+    }
+
+    @PostMapping("/{groupId}/members/{userId}")
+    public ResponseEntity<Void> addMember(@PathVariable Long groupId, @PathVariable Long userId) {
+        try {
+            service.addMember(groupId, userId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getStatusCode());
+        }
+    }
+
+    @DeleteMapping("/{groupId}/members/{userId}")
+    public ResponseEntity<Void> removeMember(@PathVariable Long groupId, @PathVariable Long userId) {
+        try {
+            service.removeMember(groupId, userId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getStatusCode());
+        }
     }
 }

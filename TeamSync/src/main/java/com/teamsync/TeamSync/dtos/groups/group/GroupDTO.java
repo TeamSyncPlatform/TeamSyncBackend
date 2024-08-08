@@ -9,12 +9,14 @@ import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class GroupDTO {
     private Long id;
     private String name;
     private List<ChannelReference> channels;
-    private List<UserReference> members;
+    private Map<Long, UserReference> members;
 }

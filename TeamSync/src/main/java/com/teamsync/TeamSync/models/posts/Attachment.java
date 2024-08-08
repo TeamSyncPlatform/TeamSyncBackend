@@ -6,10 +6,9 @@ import lombok.Data;
 @Entity
 @Data
 @Table(name = "attachments")
-@TableGenerator(name="attachments_id_generator", table="primary_keys", pkColumnName="key_pk", pkColumnValue="attachment", initialValue = 1, valueColumnName="value_pk")
 public class Attachment {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "attachments_id_generator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String path;

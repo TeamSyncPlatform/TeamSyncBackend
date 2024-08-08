@@ -12,7 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService implements IPostService {
@@ -24,66 +28,95 @@ public class PostService implements IPostService {
 
     @Override
     public Collection<Post> getAll() {
-        return postRepository.findAll();
+        Collection<Post> posts = postRepository.findByIsDeletedFalse();
+        return posts.stream()
+                .map(this::filterDeletedComments)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Post get(Long postId) throws ResponseStatusException {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        Post post = getExistingPost(postId);
+        return filterDeletedComments(post);
     }
 
     @Override
     public Post create(Post post) throws ResponseStatusException {
-        if (!userRepository.existsById(post.getAuthor().getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
-
-        return postRepository.save(post);
+        checkUserExistence(post.getAuthor().getId());
+        return filterDeletedComments(postRepository.save(post));
     }
 
     @Override
     public Post update(Post post) throws ResponseStatusException {
-        if (!postRepository.existsById(post.getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
-        }
-        return postRepository.save(post);
+        getExistingPost(post.getId()); // Check existence
+        return filterDeletedComments(postRepository.save(post));
     }
 
     @Override
-    public Post remove(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
-        // Initialize the reactions map
+    public Post removePhysical(Long postId) {
+        Post post = getExistingPost(postId);
         Hibernate.initialize(post.getReactions());
         postRepository.delete(post);
-        return post;
+        return filterDeletedComments(post);
+    }
+
+    @Override
+    public Post removeLogical(Long postId) {
+        Post post = getExistingPost(postId);
+        post.delete();
+        return filterDeletedComments(postRepository.save(post));
     }
 
     @Override
     public Post addReaction(Long postId, Reaction reaction) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
-
-        if (!userRepository.existsById(reaction.getUserId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
-
+        Post post = getExistingPost(postId);
+        checkUserExistence(reaction.getUserId());
         post.addReaction(reaction);
-        return postRepository.save(post);
+        return filterDeletedComments(postRepository.save(post));
     }
-
 
     @Override
     public Post removeReaction(Long postId, Reaction reaction) {
+        Post post = getExistingPost(postId);
+        checkUserExistence(reaction.getUserId());
+        post.removeReaction(reaction);
+        return filterDeletedComments(postRepository.save(post));
+    }
+
+    private Post getExistingPost(Long postId){
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
-
-        if (!userRepository.existsById(reaction.getUserId())) {
+        if(post.getIsDeleted()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
+        return post;
+    }
 
-        post.removeReaction(reaction);
-        return postRepository.save(post);
+    private void checkUserExistence(Long userId){
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+    private Post filterDeletedComments(Post post) {
+        Post filteredPost = new Post();
+
+        filteredPost.setId(post.getId());
+        filteredPost.setContent(post.getContent());
+        filteredPost.setCreationDate(post.getCreationDate());
+        filteredPost.setAuthor(post.getAuthor());
+        filteredPost.setReactions(new HashMap<>(post.getReactions()));
+        filteredPost.setAttachments(new ArrayList<>(post.getAttachments()));
+        filteredPost.setChannel(post.getChannel());
+
+        List<Comment> filteredComments = post.getComments().stream()
+                .filter(comment -> !comment.getIsDeleted())
+                .collect(Collectors.toList());
+
+        filteredPost.setComments(filteredComments);
+
+        filteredPost.setIsDeleted(post.getIsDeleted());
+
+        return filteredPost;
     }
 }

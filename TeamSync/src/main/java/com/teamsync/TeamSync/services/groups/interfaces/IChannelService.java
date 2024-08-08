@@ -10,5 +10,6 @@ public interface IChannelService {
     Channel get(Long channelId) throws ResponseStatusException;
     Channel create(Channel channel) throws ResponseStatusException;
     Channel update(Channel channel) throws ResponseStatusException;
-    Channel remove(Long channelId);
+    Channel removePhysical(Long channelId);
+    Channel removeLogical(Long channelId);
 }

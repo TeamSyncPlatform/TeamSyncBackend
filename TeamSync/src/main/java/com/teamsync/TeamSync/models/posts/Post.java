@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.models.posts;
 
+import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.users.User;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -10,25 +11,20 @@ import java.util.*;
 @Entity
 @Data
 @Table(name = "posts")
-@TableGenerator(name="posts_id_generator", table="primary_keys", pkColumnName="key_pk", pkColumnValue="post", initialValue = 1, valueColumnName="value_pk")
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "posts_id_generator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String content;
 
     private Date creationDate;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments = new ArrayList<>();
-
-//    @ElementCollection
-//    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-//    private List<Reaction> reactions = new ArrayList<>();
 
     @ElementCollection
     @MapKeyColumn(name = "user_id")
@@ -36,8 +32,14 @@ public class Post {
     @CollectionTable(name = "post_reactions", joinColumns = @JoinColumn(name = "post_id"))
     private Map<Long, ReactionType> reactions = new HashMap<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private User author;
+
+    private Boolean isDeleted = false;
+
+    @ManyToOne()
+    @JoinColumn(name = "post_id", nullable = false)
+    private Channel channel;
 
     public void addComment(Comment comment) {
         comments.add(comment);
@@ -61,5 +63,14 @@ public class Post {
 
     public void removeAttachment(Attachment attachment) {
         attachments.remove(attachment);
+    }
+
+    public void delete(){
+        isDeleted = true;
+    }
+
+    @Override
+    public String toString() {
+        return "Post{id=" + id + ", content='" + content + "'}";
     }
 }

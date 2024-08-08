@@ -12,7 +12,8 @@ public interface IPostService {
     Post get(Long postId) throws ResponseStatusException;
     Post create(Post post) throws ResponseStatusException;
     Post update(Post post) throws ResponseStatusException;
-    Post remove(Long postId);
+    Post removePhysical(Long postId);
+    Post removeLogical(Long postId);
     Post addReaction(Long postId, Reaction reaction);
     Post removeReaction(Long postId, Reaction reaction);
 }
