@@ -11,4 +11,5 @@ public interface IUserService {
     User create(User user) throws ResponseStatusException;
     User update(User user) throws ResponseStatusException;
     User remove(Long userId);
+    User handleLogin();
 }

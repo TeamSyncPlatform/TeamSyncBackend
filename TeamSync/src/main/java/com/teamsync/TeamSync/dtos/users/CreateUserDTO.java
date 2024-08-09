@@ -10,14 +10,12 @@ import java.util.UUID;
 
 @Data
 public class CreateUserDTO {
-    private UUID externalIdentification;
+    private String externalIdentification;
     private String email;
     private String firstName;
     private String lastName;
     private String address;
     private String phoneNumber;
-    private Role role;
-    private String jwt;
     private String department;
     private String jobTitle;
     private List<String> skills;

@@ -2,6 +2,7 @@ package com.teamsync.TeamSync.services.users;
 
 import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
+import com.teamsync.TeamSync.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ import java.util.Collection;
 public class UserService implements IUserService {
     @Autowired
     private IUserRepository userRepository;
+
+    @Autowired
+    UserUtils userUtils;
 
     @Override
     public Collection<User> getAll() {
@@ -44,5 +48,15 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         userRepository.delete(user);
         return user;
+    }
+
+    @Override
+    public User handleLogin(){
+        User loggedUser = userUtils.GetLoggedUser();
+        User result = userRepository.getUserByExternalIdentification(loggedUser.getExternalIdentification());
+        if(result == null){
+            result = create(loggedUser);
+        }
+        return result;
     }
 }

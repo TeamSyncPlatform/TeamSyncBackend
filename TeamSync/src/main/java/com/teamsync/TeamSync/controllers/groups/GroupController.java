@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -23,6 +24,7 @@ public class GroupController {
     private final ModelMapper mapper;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Collection<GroupDTO>> getGroups() {
         Collection<Group> groups = service.getAll();
         Collection<GroupDTO> groupResponses = groups.stream()

@@ -6,11 +6,20 @@ import com.teamsync.TeamSync.dtos.users.UserDTO;
 import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.services.users.IUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -23,7 +32,11 @@ public class UserController {
     private final ModelMapper mapper;
 
     @GetMapping
+//    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Collection<UserDTO>> getUsers() {
+
+
         Collection<User> users = service.getAll();
         Collection<UserDTO> userResponses = users.stream()
                 .map(user -> mapper.map(user, UserDTO.class))
@@ -58,4 +71,10 @@ public class UserController {
         }
         return new ResponseEntity<>(mapper.map(user, UserDTO.class), HttpStatus.OK);
     }
+
+    @PutMapping("/login")
+    public ResponseEntity<UserDTO> handleLogin() {
+        return new ResponseEntity<>(mapper.map(service.handleLogin(), UserDTO.class), HttpStatus.OK);
+    }
+
 }

@@ -20,6 +20,10 @@ public class Channel {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
+
     public void addPost(Post post) {
         posts.add(post);
     }

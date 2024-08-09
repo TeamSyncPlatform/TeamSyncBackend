@@ -19,7 +19,8 @@ public class User{
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "user_id_generator")
     private Long id;
 
-    private UUID externalIdentification;
+    @Column(unique = true)
+    private String externalIdentification;
 
     @Column(unique = true)
     private String email;
@@ -31,12 +32,6 @@ public class User{
     private String address;
 
     private String phoneNumber;
-
-    @Enumerated
-    private Role role = Role.USER;
-
-    @Transient
-    private String jwt;
 
     private String department;
 

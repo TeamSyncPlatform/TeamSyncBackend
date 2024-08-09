@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.models.groups;
 
+import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.users.User;
 import jakarta.persistence.*;
@@ -19,8 +20,7 @@ public class Group {
 
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Channel> channels = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

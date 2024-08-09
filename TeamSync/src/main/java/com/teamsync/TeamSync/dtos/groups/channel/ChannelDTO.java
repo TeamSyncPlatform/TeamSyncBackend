@@ -1,6 +1,7 @@
 package com.teamsync.TeamSync.dtos.groups.channel;
 
 import com.teamsync.TeamSync.dtos.posts.post.PostReference;
+import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.models.posts.Post;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToMany;
@@ -16,4 +17,5 @@ public class ChannelDTO {
     private String name;
 
     private List<PostReference> posts;
+    private Group group;
 }
