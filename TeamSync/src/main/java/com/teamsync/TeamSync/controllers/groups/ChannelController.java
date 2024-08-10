@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -23,6 +24,7 @@ public class ChannelController {
     private final ModelMapper mapper;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Collection<ChannelDTO>> getChannels() {
         Collection<Channel> channels = service.getAll();
         Collection<ChannelDTO> channelResponses = channels.stream()
@@ -32,6 +34,7 @@ public class ChannelController {
     }
 
     @GetMapping("/{channelId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ChannelDTO> get(@PathVariable Long channelId) {
         Channel channel = service.get(channelId);
         if (channel == null) {
@@ -41,16 +44,19 @@ public class ChannelController {
     }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ChannelDTO> create(@RequestBody CreateChannelDTO channel) {
         return new ResponseEntity<>(mapper.map(service.create(mapper.map(channel, Channel.class)), ChannelDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping
+    @PreAuthorize("isAuthenticated()")
     public ChannelDTO update(@RequestBody UpdateChannelDTO channel) {
         return mapper.map(service.update(mapper.map(channel, Channel.class)), ChannelDTO.class);
     }
 
     @DeleteMapping("/{channelId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ChannelDTO> remove(@PathVariable Long channelId) {
         Channel channel = service.remove(channelId);
         if (channel == null) {

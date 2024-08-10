@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -26,6 +27,7 @@ public class PostController {
     private final ModelMapper mapper;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Collection<PostDTO>> getPosts() {
         Collection<Post> posts = service.getAll();
         Collection<PostDTO> postResponses = posts.stream()
@@ -35,6 +37,7 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostDTO> get(@PathVariable Long postId) {
         Post post = service.get(postId);
         if (post == null) {
@@ -44,16 +47,19 @@ public class PostController {
     }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostDTO> create(@RequestBody CreatePostDTO post) {
         return new ResponseEntity<>(mapper.map(service.create(mapper.map(post, Post.class)), PostDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping
+    @PreAuthorize("isAuthenticated()")
     public PostDTO update(@RequestBody UpdatePostDTO post) {
         return mapper.map(service.update(mapper.map(post, Post.class)), PostDTO.class);
     }
 
     @DeleteMapping("/{postId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostDTO> remove(@PathVariable Long postId) {
         Post post = service.remove(postId);
         if (post == null) {
@@ -63,12 +69,14 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/reactions")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostDTO> addReaction(@PathVariable Long postId, @RequestBody Reaction reaction) {
         Post post = service.addReaction(postId, reaction);
         return new ResponseEntity<>(mapper.map(post, PostDTO.class), HttpStatus.OK);
     }
 
     @DeleteMapping("/{postId}/reactions")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostDTO> removeReaction(@PathVariable Long postId, @RequestBody Reaction reaction) {
         Post post = service.removeReaction(postId, reaction);
         return new ResponseEntity<>(mapper.map(post, PostDTO.class), HttpStatus.OK);

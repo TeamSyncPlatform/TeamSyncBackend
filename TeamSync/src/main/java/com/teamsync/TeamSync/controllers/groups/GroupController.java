@@ -34,6 +34,7 @@ public class GroupController {
     }
 
     @GetMapping("/{groupId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GroupDTO> get(@PathVariable Long groupId) {
         Group group = service.get(groupId);
         if (group == null) {
@@ -43,16 +44,19 @@ public class GroupController {
     }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GroupDTO> create(@RequestBody CreateGroupDTO group) {
         return new ResponseEntity<>(mapper.map(service.create(mapper.map(group, Group.class)), GroupDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping
+    @PreAuthorize("isAuthenticated()")
     public GroupDTO update(@RequestBody UpdateGroupDTO group) {
         return mapper.map(service.update(mapper.map(group, Group.class)), GroupDTO.class);
     }
 
     @DeleteMapping("/{groupId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GroupDTO> remove(@PathVariable Long groupId) {
         Group group = service.remove(groupId);
         if (group == null) {

@@ -32,11 +32,8 @@ public class UserController {
     private final ModelMapper mapper;
 
     @GetMapping
-//    @PreAuthorize("isAuthenticated()")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Collection<UserDTO>> getUsers() {
-
-
         Collection<User> users = service.getAll();
         Collection<UserDTO> userResponses = users.stream()
                 .map(user -> mapper.map(user, UserDTO.class))
@@ -45,6 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> get(@PathVariable Long userId) {
         User user = service.get(userId);
         if (user == null) {
@@ -54,6 +52,7 @@ public class UserController {
     }
 
     @GetMapping("/external-id/{externalId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> getByExternalId(@PathVariable String externalId) {
         User user = service.getByExternalId(externalId);
         if (user == null) {
@@ -63,16 +62,19 @@ public class UserController {
     }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> create(@RequestBody CreateUserDTO user) {
         return new ResponseEntity<>(mapper.map(service.create(mapper.map(user, User.class)), UserDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping
+    @PreAuthorize("isAuthenticated()")
     public UserDTO update(@RequestBody UpdateUserDTO user) {
         return mapper.map(service.update(mapper.map(user, User.class)), UserDTO.class);
     }
 
     @DeleteMapping("/{userId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> remove(@PathVariable Long userId) {
         User user = service.remove(userId);
         if (user == null) {
@@ -82,6 +84,7 @@ public class UserController {
     }
 
     @PutMapping("/login")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> handleLogin() {
         return new ResponseEntity<>(mapper.map(service.handleLogin(), UserDTO.class), HttpStatus.OK);
     }
