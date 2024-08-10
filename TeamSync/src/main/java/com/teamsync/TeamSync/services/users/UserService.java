@@ -4,12 +4,14 @@ import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.groups.IGroupRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
+import com.teamsync.TeamSync.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class UserService implements IUserService {
@@ -17,7 +19,11 @@ public class UserService implements IUserService {
     private IUserRepository userRepository;
 
     @Autowired
+    private UserUtils userUtils;
+
+    @Autowired
     private IGroupRepository groupRepository;
+
 
     @Override
     public Collection<User> getAll() {
@@ -29,6 +35,13 @@ public class UserService implements IUserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
+
+    @Override
+    public User getByExternalId(String userId) throws ResponseStatusException {
+        return userRepository.getUserByExternalIdentification(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
 
     @Override
     public User create(User user) throws ResponseStatusException {
@@ -55,5 +68,13 @@ public class UserService implements IUserService {
 
         userRepository.delete(user);
         return user;
+    }
+
+    @Override
+    public User handleLogin() {
+        User loggedUser = userUtils.GetLoggedUser();
+        Optional<User> optionalUser = userRepository.getUserByExternalIdentification(loggedUser.getExternalIdentification());
+        
+        return optionalUser.orElseGet(() -> create(loggedUser));
     }
 }

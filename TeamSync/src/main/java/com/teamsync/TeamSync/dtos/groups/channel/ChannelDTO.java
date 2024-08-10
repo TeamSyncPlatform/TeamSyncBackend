@@ -18,5 +18,6 @@ public class ChannelDTO {
     private String name;
 
     private List<PostReference> posts;
+
     private GroupReference group;
 }

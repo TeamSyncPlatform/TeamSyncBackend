@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,6 +25,7 @@ public class GroupController {
     private final ModelMapper mapper;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Collection<GroupDTO>> getGroups() {
         Collection<Group> groups = service.getAll();
         Collection<GroupDTO> groupResponses = groups.stream()
@@ -33,6 +35,7 @@ public class GroupController {
     }
 
     @GetMapping("/{groupId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GroupDTO> get(@PathVariable Long groupId) {
         Group group = service.get(groupId);
         if (group == null) {
@@ -42,16 +45,20 @@ public class GroupController {
     }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GroupDTO> create(@RequestBody CreateGroupDTO group) {
         return new ResponseEntity<>(mapper.map(service.create(mapper.map(group, Group.class)), GroupDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping
+    @PreAuthorize("isAuthenticated()")
     public GroupDTO update(@RequestBody UpdateGroupDTO group) {
         return mapper.map(service.update(mapper.map(group, Group.class)), GroupDTO.class);
     }
 
+
     @DeleteMapping("/{groupId}/physical")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GroupDTO> removePhysical(@PathVariable Long groupId) {
         Group group = service.removePhysical(groupId);
         if (group == null) {
@@ -61,6 +68,7 @@ public class GroupController {
     }
 
     @DeleteMapping("/{groupId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GroupDTO> removeLogical(@PathVariable Long groupId) {
         Group group = service.removeLogical(groupId);
         if (group == null) {

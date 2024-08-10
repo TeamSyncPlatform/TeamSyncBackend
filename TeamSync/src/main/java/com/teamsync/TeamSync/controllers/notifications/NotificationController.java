@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -23,6 +24,7 @@ public class NotificationController {
     private final ModelMapper mapper;
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Collection<NotificationDTO>> getNotifications() {
         Collection<Notification> notifications = service.getAll();
         Collection<NotificationDTO> notificationResponses =  notifications.stream()
@@ -32,6 +34,7 @@ public class NotificationController {
     }
 
     @GetMapping({"/{notificationId}"})
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<NotificationDTO> get(@PathVariable Long notificationId) {
         Notification notification = service.get(notificationId);
         if(notification==null){
@@ -41,16 +44,19 @@ public class NotificationController {
     }
 
     @PostMapping({"/"})
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<NotificationDTO> create(@RequestBody CreateNotificationDTO notification) {
         return new ResponseEntity<>(mapper.map(service.create(mapper.map(notification, Notification.class)),NotificationDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping({"/"})
+    @PreAuthorize("isAuthenticated()")
     public NotificationDTO update(@RequestBody UpdateNotificationDTO notification) {
         return mapper.map(service.update(mapper.map(notification, Notification.class)),NotificationDTO.class);
     }
 
     @DeleteMapping({"/{notificationId}"})
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<NotificationDTO> remove(@PathVariable Long notificationId) {
         Notification notification = service.remove(notificationId);
         if(notification==null){
