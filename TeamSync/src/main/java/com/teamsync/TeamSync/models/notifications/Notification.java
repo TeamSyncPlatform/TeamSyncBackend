@@ -9,10 +9,9 @@ import java.util.Date;
 @Entity
 @Data
 @Table(name = "notifications")
-@TableGenerator(name="notifications_id_generator", table="primary_keys", pkColumnName="key_pk", pkColumnValue="notification", initialValue = 1, valueColumnName="value_pk")
 public class Notification {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "notifications_id_generator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String message;

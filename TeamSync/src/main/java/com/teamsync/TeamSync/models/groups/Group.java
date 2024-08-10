@@ -7,15 +7,16 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Data
 @Table(name = "groups")
-@TableGenerator(name="groups_id_generator", table="primary_keys", pkColumnName="key_pk", pkColumnValue="group", initialValue = 1, valueColumnName="value_pk")
 public class Group {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "groups_id_generator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -23,8 +24,15 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Channel> channels = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<User> members = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "group_members",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Map<Long, User> members = new HashMap<>();
+
+    private Boolean isDeleted = false;
 
     public void addChannel(Channel channel) {
         channels.add(channel);
@@ -34,9 +42,13 @@ public class Group {
     }
 
     public void addMember(User user) {
-        members.add(user);
+        members.put(user.getId(), user);
     }
+
     public void removeMember(User user) {
-        members.remove(user);
+        members.remove(user.getId());
+    }
+    public void delete(){
+        isDeleted = true;
     }
 }

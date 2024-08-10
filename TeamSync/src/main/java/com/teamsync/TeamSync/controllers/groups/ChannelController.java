@@ -55,10 +55,19 @@ public class ChannelController {
         return mapper.map(service.update(mapper.map(channel, Channel.class)), ChannelDTO.class);
     }
 
+    @DeleteMapping("/{channelId}/physical")
+    public ResponseEntity<ChannelDTO> removePhysical(@PathVariable Long channelId) {
+        Channel channel = service.removePhysical(channelId);
+        if (channel == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(mapper.map(channel, ChannelDTO.class), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{channelId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ChannelDTO> remove(@PathVariable Long channelId) {
-        Channel channel = service.remove(channelId);
+        Channel channel = service.removeLogical(channelId);
         if (channel == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

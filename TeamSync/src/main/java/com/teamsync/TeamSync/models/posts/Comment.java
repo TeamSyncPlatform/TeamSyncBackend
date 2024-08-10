@@ -13,15 +13,14 @@ import java.util.Map;
 @Entity
 @Data
 @Table(name = "comments")
-@TableGenerator(name="comments_id_generator", table="primary_keys", pkColumnName="key_pk", pkColumnValue="comment", initialValue = 1, valueColumnName="value_pk")
 public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "comments_id_generator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private User author;
 
 //    @ElementCollection
@@ -34,15 +33,20 @@ public class Comment {
     @CollectionTable(name = "comment_reactions", joinColumns = @JoinColumn(name = "comment_id"))
     private Map<Long, ReactionType> reactions = new HashMap<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    private Boolean isDeleted = false;
     public void addReaction(Reaction reaction) {
         reactions.put(reaction.getUserId(), reaction.getType());
     }
 
     public void removeReaction(Reaction reaction) {
         reactions.remove(reaction.getUserId());
+    }
+
+    public void delete(){
+        isDeleted = true;
     }
 }

@@ -56,10 +56,20 @@ public class CommentController {
         return mapper.map(service.update(mapper.map(comment, Comment.class)), CommentDTO.class);
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{commentId}/physical")
+    public ResponseEntity<CommentDTO> removePhysical(@PathVariable Long commentId) {
+        Comment comment = service.removePhysical(commentId);
+        if (comment == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(mapper.map(comment, CommentDTO.class), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{commentId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<CommentDTO> remove(@PathVariable Long commentId) {
-        Comment comment = service.remove(commentId);
+    public ResponseEntity<CommentDTO> removeLogical(@PathVariable Long commentId) {
+        Comment comment = service.removeLogical(commentId);
         if (comment == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

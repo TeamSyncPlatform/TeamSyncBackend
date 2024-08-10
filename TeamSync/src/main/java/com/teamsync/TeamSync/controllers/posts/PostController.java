@@ -58,10 +58,20 @@ public class PostController {
         return mapper.map(service.update(mapper.map(post, Post.class)), PostDTO.class);
     }
 
+    @DeleteMapping("/{postId}/physical")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PostDTO> removePhysical(@PathVariable Long postId) {
+        Post post = service.removePhysical(postId);
+        if (post == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(mapper.map(post, PostDTO.class), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{postId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostDTO> remove(@PathVariable Long postId) {
-        Post post = service.remove(postId);
+    public ResponseEntity<PostDTO> removeLogical(@PathVariable Long postId) {
+        Post post = service.removeLogical(postId);
         if (post == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

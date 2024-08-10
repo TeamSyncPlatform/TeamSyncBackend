@@ -1,6 +1,8 @@
 package com.teamsync.TeamSync.services.users;
 
+import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.models.users.User;
+import com.teamsync.TeamSync.repositories.groups.IGroupRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,11 @@ public class UserService implements IUserService {
     private IUserRepository userRepository;
 
     @Autowired
-    UserUtils userUtils;
+    private UserUtils userUtils;
+
+    @Autowired
+    private IGroupRepository groupRepository;
+
 
     @Override
     public Collection<User> getAll() {
@@ -54,6 +60,12 @@ public class UserService implements IUserService {
     public User remove(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        for (Group group : user.getGroups()) {
+            group.removeMember(user);
+            groupRepository.save(group);
+        }
+
         userRepository.delete(user);
         return user;
     }

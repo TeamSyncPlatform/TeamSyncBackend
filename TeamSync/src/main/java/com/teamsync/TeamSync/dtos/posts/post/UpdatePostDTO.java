@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.dtos.posts.post;
 
+import com.teamsync.TeamSync.dtos.groups.channel.ChannelReference;
 import com.teamsync.TeamSync.dtos.posts.attachment.AttachmentReference;
 import com.teamsync.TeamSync.dtos.posts.comment.CommentReference;
 import com.teamsync.TeamSync.dtos.users.UserReference;
@@ -23,4 +24,5 @@ public class UpdatePostDTO {
     private List<AttachmentReference> attachments;
     private Map<Long, ReactionType> reactions;
     private UserReference author;
+    private ChannelReference channel;
 }
