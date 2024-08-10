@@ -5,15 +5,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 @Service
 public class UserUtils {
     public DefaultOAuth2AuthenticatedPrincipal getPrincipal(){
         return (DefaultOAuth2AuthenticatedPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    public User GetLoggedUser(){
+    public User getLoggedUser(){
         DefaultOAuth2AuthenticatedPrincipal principal = getPrincipal();
         User user = new User();
         user.setEmail(principal.getAttributes().get("email").toString());

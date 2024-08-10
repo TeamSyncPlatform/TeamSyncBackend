@@ -6,6 +6,7 @@ import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.groups.IGroupRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.groups.interfaces.IGroupService;
+import com.teamsync.TeamSync.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

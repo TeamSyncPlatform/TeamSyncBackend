@@ -12,6 +12,6 @@ import java.util.Map;
 @Data
 public class CreateGroupDTO {
     private String name;
-    private List<ChannelReference> channels;
-    private Map<Long, UserReference> members;
+//    private List<ChannelReference> channels;
+//    private Map<Long, UserReference> members;
 }

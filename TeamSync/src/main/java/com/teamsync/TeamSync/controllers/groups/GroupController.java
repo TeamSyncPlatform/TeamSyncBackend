@@ -77,7 +77,7 @@ public class GroupController {
         return new ResponseEntity<>(mapper.map(group, GroupDTO.class), HttpStatus.OK);
     }
 
-    @PostMapping("/{groupId}/members/{userId}")
+    @PutMapping("/{groupId}/members/{userId}")
     public ResponseEntity<Void> addMember(@PathVariable Long groupId, @PathVariable Long userId) {
         try {
             service.addMember(groupId, userId);

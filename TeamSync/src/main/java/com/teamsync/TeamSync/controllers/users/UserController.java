@@ -1,8 +1,11 @@
 package com.teamsync.TeamSync.controllers.users;
 
+import com.teamsync.TeamSync.dtos.groups.group.GroupDTO;
+import com.teamsync.TeamSync.dtos.search.GroupSearchRequest;
 import com.teamsync.TeamSync.dtos.users.CreateUserDTO;
 import com.teamsync.TeamSync.dtos.users.UpdateUserDTO;
 import com.teamsync.TeamSync.dtos.users.UserDTO;
+import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.services.users.IUserService;
 import lombok.RequiredArgsConstructor;
@@ -87,6 +90,17 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> handleLogin() {
         return new ResponseEntity<>(mapper.map(service.handleLogin(), UserDTO.class), HttpStatus.OK);
+    }
+
+    @PutMapping("/{externalId}/groups/search")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<GroupDTO>> search(@PathVariable String externalId,
+                                                       @RequestBody GroupSearchRequest request) {
+        Collection<Group> groups = service.searchGroups(externalId, request.getSearchValue());
+        Collection<GroupDTO> groupResponses = groups.stream()
+                .map(group -> mapper.map(group, GroupDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(groupResponses, HttpStatus.OK);
     }
 
 }
