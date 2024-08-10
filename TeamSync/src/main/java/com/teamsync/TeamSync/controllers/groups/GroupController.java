@@ -1,8 +1,10 @@
 package com.teamsync.TeamSync.controllers.groups;
 
+import com.teamsync.TeamSync.dtos.groups.channel.ChannelDTO;
 import com.teamsync.TeamSync.dtos.groups.group.CreateGroupDTO;
 import com.teamsync.TeamSync.dtos.groups.group.GroupDTO;
 import com.teamsync.TeamSync.dtos.groups.group.UpdateGroupDTO;
+import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.services.groups.interfaces.IGroupService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @CrossOrigin
@@ -95,5 +98,18 @@ public class GroupController {
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(e.getStatusCode());
         }
+    }
+
+    @GetMapping("/{groupId}/channels")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<ChannelDTO>> getGroupChannels(@PathVariable Long groupId) {
+        Group group = service.get(groupId);
+        if (group == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Collection<ChannelDTO> groupResponses = group.getChannels().stream()
+                .map(channel -> mapper.map(channel, ChannelDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(groupResponses, HttpStatus.OK);
     }
 }
