@@ -8,6 +8,7 @@ import java.util.Collection;
 public interface IUserService {
     Collection<User> getAll();
     User get(Long userId) throws ResponseStatusException;
+    User getByExternalId(String userId) throws ResponseStatusException;
     User create(User user) throws ResponseStatusException;
     User update(User user) throws ResponseStatusException;
     User remove(Long userId);

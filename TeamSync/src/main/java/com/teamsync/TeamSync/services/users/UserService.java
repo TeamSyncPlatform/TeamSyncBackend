@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class UserService implements IUserService {
@@ -28,6 +29,13 @@ public class UserService implements IUserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
+
+    @Override
+    public User getByExternalId(String userId) throws ResponseStatusException {
+        return userRepository.getUserByExternalIdentification(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
 
     @Override
     public User create(User user) throws ResponseStatusException {
@@ -51,12 +59,10 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User handleLogin(){
+    public User handleLogin() {
         User loggedUser = userUtils.GetLoggedUser();
-        User result = userRepository.getUserByExternalIdentification(loggedUser.getExternalIdentification());
-        if(result == null){
-            result = create(loggedUser);
-        }
-        return result;
+        Optional<User> optionalUser = userRepository.getUserByExternalIdentification(loggedUser.getExternalIdentification());
+        
+        return optionalUser.orElseGet(() -> create(loggedUser));
     }
 }

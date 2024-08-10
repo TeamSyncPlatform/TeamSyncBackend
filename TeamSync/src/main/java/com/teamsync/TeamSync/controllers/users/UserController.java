@@ -53,6 +53,15 @@ public class UserController {
         return new ResponseEntity<>(mapper.map(user, UserDTO.class), HttpStatus.OK);
     }
 
+    @GetMapping("/external-id/{externalId}")
+    public ResponseEntity<UserDTO> getByExternalId(@PathVariable String externalId) {
+        User user = service.getByExternalId(externalId);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(mapper.map(user, UserDTO.class), HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<UserDTO> create(@RequestBody CreateUserDTO user) {
         return new ResponseEntity<>(mapper.map(service.create(mapper.map(user, User.class)), UserDTO.class), HttpStatus.CREATED);
