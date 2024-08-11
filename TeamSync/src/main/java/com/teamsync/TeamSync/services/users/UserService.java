@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Optional;
 
 @Service
@@ -72,9 +75,32 @@ public class UserService implements IUserService {
 
     @Override
     public User handleLogin() {
-        User loggedUser = userUtils.GetLoggedUser();
+        User loggedUser = userUtils.getLoggedUser();
         Optional<User> optionalUser = userRepository.getUserByExternalIdentification(loggedUser.getExternalIdentification());
-        
+
         return optionalUser.orElseGet(() -> create(loggedUser));
+    }
+
+    @Override
+    public Collection<Group> searchGroups(String userId, String searchValue) {
+        Optional<User> userOptional = userRepository.getUserByExternalIdentification(userId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            List<Group> userGroups = user.getGroups();
+            return filterGroups(userGroups, searchValue);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private List<Group> filterGroups(List<Group> groups, String searchValue) {
+        if (searchValue == null || searchValue.trim().isEmpty()) {
+            return groups;
+        }
+
+        return groups.stream()
+                .filter(group -> group.getName().toLowerCase().contains(searchValue.toLowerCase()))
+                .collect(Collectors.toList());
     }
 }

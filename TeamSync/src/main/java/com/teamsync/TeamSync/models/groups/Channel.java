@@ -19,8 +19,8 @@ public class Channel {
     @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "group_id")
     private Group group;
 
     private Boolean isDeleted = false;

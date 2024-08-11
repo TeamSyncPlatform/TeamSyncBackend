@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.services.users;
 
+import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.models.users.User;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -13,4 +14,5 @@ public interface IUserService {
     User update(User user) throws ResponseStatusException;
     User remove(Long userId);
     User handleLogin();
+    Collection<Group> searchGroups(String userId, String searchValue);
 }

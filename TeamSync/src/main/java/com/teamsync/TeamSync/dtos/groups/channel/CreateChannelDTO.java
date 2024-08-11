@@ -11,6 +11,6 @@ import java.util.List;
 @Data
 public class CreateChannelDTO {
     private String name;
-    private List<PostReference> posts;
+//    private List<PostReference> posts;
     private GroupReference group;
 }
