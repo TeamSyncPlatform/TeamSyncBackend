@@ -7,6 +7,7 @@ import com.teamsync.TeamSync.dtos.groups.group.UpdateGroupDTO;
 import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.services.groups.interfaces.IGroupService;
+import com.teamsync.TeamSync.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 public class GroupController {
     private final IGroupService service;
     private final ModelMapper mapper;
-
+    private final UserUtils userUtils;
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Collection<GroupDTO>> getGroups() {
@@ -50,7 +51,9 @@ public class GroupController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GroupDTO> create(@RequestBody CreateGroupDTO group) {
-        return new ResponseEntity<>(mapper.map(service.create(mapper.map(group, Group.class)), GroupDTO.class), HttpStatus.CREATED);
+        Group createdGroup = service.create(mapper.map(group, Group.class));
+        service.addMember(createdGroup.getId(), userUtils.getLoggedUser().getExternalIdentification());
+        return new ResponseEntity<>(mapper.map(createdGroup, GroupDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping

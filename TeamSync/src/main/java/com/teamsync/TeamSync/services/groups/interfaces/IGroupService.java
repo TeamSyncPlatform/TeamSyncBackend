@@ -13,5 +13,6 @@ public interface IGroupService {
     Group removePhysical(Long groupId);
     Group removeLogical(Long groupId);
     public void addMember(Long groupId, Long userId);
+    public void addMember(Long groupId, String externalIdentification);
     public void removeMember(Long groupId, Long userId);
 }
