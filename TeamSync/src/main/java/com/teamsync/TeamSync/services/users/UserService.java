@@ -96,11 +96,14 @@ public class UserService implements IUserService {
 
     private List<Group> filterGroups(List<Group> groups, String searchValue) {
         if (searchValue == null || searchValue.trim().isEmpty()) {
-            return groups;
+            return groups.stream()
+                    .filter(group -> !group.getIsDeleted())
+                    .collect(Collectors.toList());
         }
 
         return groups.stream()
                 .filter(group -> group.getName().toLowerCase().contains(searchValue.toLowerCase()))
+                .filter(group -> !group.getIsDeleted())
                 .collect(Collectors.toList());
     }
 }

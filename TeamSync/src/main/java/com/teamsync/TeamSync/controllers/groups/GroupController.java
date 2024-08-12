@@ -6,7 +6,9 @@ import com.teamsync.TeamSync.dtos.groups.group.GroupDTO;
 import com.teamsync.TeamSync.dtos.groups.group.UpdateGroupDTO;
 import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.groups.Group;
+import com.teamsync.TeamSync.services.groups.interfaces.IChannelService;
 import com.teamsync.TeamSync.services.groups.interfaces.IGroupService;
+import com.teamsync.TeamSync.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -25,8 +27,10 @@ import java.util.stream.Collectors;
 @RequestMapping("api/v1/groups")
 public class GroupController {
     private final IGroupService service;
+    private final IChannelService channelService;
     private final ModelMapper mapper;
 
+    private final UserUtils userUtils;
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Collection<GroupDTO>> getGroups() {
@@ -48,9 +52,15 @@ public class GroupController {
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<GroupDTO> create(@RequestBody CreateGroupDTO group) {
-        return new ResponseEntity<>(mapper.map(service.create(mapper.map(group, Group.class)), GroupDTO.class), HttpStatus.CREATED);
+        Group createdGroup = service.create(mapper.map(group, Group.class));
+        service.addMember(createdGroup.getId(), userUtils.getLoggedUser().getExternalIdentification());
+        Channel channel = new Channel();
+        channel.setName("General");
+        channel.setGroup(createdGroup);
+        channelService.create(channel);
+        return new ResponseEntity<>(mapper.map(createdGroup, GroupDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping
@@ -61,7 +71,7 @@ public class GroupController {
 
 
     @DeleteMapping("/{groupId}/physical")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<GroupDTO> removePhysical(@PathVariable Long groupId) {
         Group group = service.removePhysical(groupId);
         if (group == null) {
@@ -71,7 +81,7 @@ public class GroupController {
     }
 
     @DeleteMapping("/{groupId}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<GroupDTO> removeLogical(@PathVariable Long groupId) {
         Group group = service.removeLogical(groupId);
         if (group == null) {
@@ -111,5 +121,15 @@ public class GroupController {
                 .map(channel -> mapper.map(channel, ChannelDTO.class))
                 .collect(Collectors.toList());
         return new ResponseEntity<>(groupResponses, HttpStatus.OK);
+    }
+
+    @GetMapping("/unique/{groupName}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> isNameUnique(@PathVariable String groupName) {
+        Boolean isUnique = service.isNameUnique(groupName);
+        if (isUnique == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(isUnique, HttpStatus.OK);
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,9 +82,27 @@ public class GroupService implements IGroupService {
         return user;
     }
 
+    private User getExistingUser(String externalIdentification){
+        User user = userRepository.getUserByExternalIdentification(externalIdentification)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if(user.getIsDeleted()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        return user;
+    }
+
     public void addMember(Long groupId, Long userId){
         Group group = getExistingGroup(groupId);
         User user = getExistingUser(userId);
+        group.addMember(user);
+        user.addGroup(group);
+        groupRepository.save(group);
+        userRepository.save(user);
+    }
+
+    public void addMember(Long groupId, String externalIdentification){
+        Group group = getExistingGroup(groupId);
+        User user = getExistingUser(externalIdentification);
         group.addMember(user);
         user.addGroup(group);
         groupRepository.save(group);
@@ -97,6 +116,13 @@ public class GroupService implements IGroupService {
         user.removeGroup(group);
         groupRepository.save(group);
         userRepository.save(user);
+    }
+
+    @Override
+    public Boolean isNameUnique(String groupName) {
+        Optional<Group> groupOptional = groupRepository.findByNameAndIsDeletedFalse(groupName);
+
+        return groupOptional.isEmpty();
     }
 
     private Group filterDeletedChannels(Group group) {
