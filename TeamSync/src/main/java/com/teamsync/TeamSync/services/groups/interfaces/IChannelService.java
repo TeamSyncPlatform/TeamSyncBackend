@@ -12,4 +12,5 @@ public interface IChannelService {
     Channel update(Channel channel) throws ResponseStatusException;
     Channel removePhysical(Long channelId);
     Channel removeLogical(Long channelId);
+    Boolean isNameUnique(String channelName);
 }

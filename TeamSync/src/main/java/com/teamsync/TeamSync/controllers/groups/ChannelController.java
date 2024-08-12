@@ -44,7 +44,7 @@ public class ChannelController {
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<ChannelDTO> create(@RequestBody CreateChannelDTO channel) {
         return new ResponseEntity<>(mapper.map(service.create(mapper.map(channel, Channel.class)), ChannelDTO.class), HttpStatus.CREATED);
     }
@@ -56,6 +56,7 @@ public class ChannelController {
     }
 
     @DeleteMapping("/{channelId}/physical")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<ChannelDTO> removePhysical(@PathVariable Long channelId) {
         Channel channel = service.removePhysical(channelId);
         if (channel == null) {
@@ -65,12 +66,22 @@ public class ChannelController {
     }
 
     @DeleteMapping("/{channelId}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<ChannelDTO> remove(@PathVariable Long channelId) {
         Channel channel = service.removeLogical(channelId);
         if (channel == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(mapper.map(channel, ChannelDTO.class), HttpStatus.OK);
+    }
+
+    @GetMapping("/unique/{channelName}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> isNameUnique(@PathVariable String channelName) {
+        Boolean isUnique = service.isNameUnique(channelName);
+        if (isUnique == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(isUnique, HttpStatus.OK);
     }
 }

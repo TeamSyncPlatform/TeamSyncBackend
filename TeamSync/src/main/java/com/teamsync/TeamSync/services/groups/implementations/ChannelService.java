@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,6 +70,12 @@ public class ChannelService implements IChannelService {
         Channel channel = getExistingChannel(channelId);
         channel.delete();
         return filterDeletedPosts(channelRepository.save(channel));
+    }
+
+    @Override
+    public Boolean isNameUnique(String groupName) {
+        Optional<Channel> channelOptional = channelRepository.findByNameAndIsDeletedFalse(groupName);
+        return channelOptional.isEmpty();
     }
 
     private Channel getExistingChannel(Long channelId){
