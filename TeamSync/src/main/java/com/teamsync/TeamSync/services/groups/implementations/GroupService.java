@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -115,6 +116,13 @@ public class GroupService implements IGroupService {
         user.removeGroup(group);
         groupRepository.save(group);
         userRepository.save(user);
+    }
+
+    @Override
+    public Boolean isNameUnique(String groupName) {
+        Optional<Group> groupOptional = groupRepository.findByNameAndIsDeletedFalse(groupName);
+
+        return groupOptional.isEmpty();
     }
 
     private Group filterDeletedChannels(Group group) {

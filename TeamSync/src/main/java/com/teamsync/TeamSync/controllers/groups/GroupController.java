@@ -115,4 +115,14 @@ public class GroupController {
                 .collect(Collectors.toList());
         return new ResponseEntity<>(groupResponses, HttpStatus.OK);
     }
+
+    @GetMapping("/unique/{groupName}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> isNameUnique(@PathVariable String groupName) {
+        Boolean isUnique = service.isNameUnique(groupName);
+        if (isUnique == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(isUnique, HttpStatus.OK);
+    }
 }
