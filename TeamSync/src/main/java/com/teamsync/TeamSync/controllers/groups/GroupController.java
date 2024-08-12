@@ -4,6 +4,7 @@ import com.teamsync.TeamSync.dtos.groups.channel.ChannelDTO;
 import com.teamsync.TeamSync.dtos.groups.group.CreateGroupDTO;
 import com.teamsync.TeamSync.dtos.groups.group.GroupDTO;
 import com.teamsync.TeamSync.dtos.groups.group.UpdateGroupDTO;
+import com.teamsync.TeamSync.dtos.users.UserDTO;
 import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.services.groups.interfaces.IChannelService;
@@ -131,5 +132,18 @@ public class GroupController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(isUnique, HttpStatus.OK);
+    }
+
+    @GetMapping("/{groupId}/members")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<UserDTO>> getGroupMembers(@PathVariable Long groupId) {
+        Group group = service.get(groupId);
+        if (group == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Collection<UserDTO> groupResponses = group.getMembers().values().stream()
+                .map(user -> mapper.map(user, UserDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(groupResponses, HttpStatus.OK);
     }
 }
