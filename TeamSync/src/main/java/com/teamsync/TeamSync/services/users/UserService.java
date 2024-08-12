@@ -78,7 +78,21 @@ public class UserService implements IUserService {
         User loggedUser = userUtils.getLoggedUser();
         Optional<User> optionalUser = userRepository.getUserByExternalIdentification(loggedUser.getExternalIdentification());
 
-        return optionalUser.orElseGet(() -> create(loggedUser));
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+
+            String loggedUserRole = loggedUser.getRole();
+            String existingUserRole = existingUser.getRole();
+
+            if (!loggedUserRole.equals(existingUserRole)) {
+                existingUser.setRole(loggedUserRole);
+                existingUser = userRepository.save(existingUser);
+            }
+
+            return existingUser;
+        } else {
+            return create(loggedUser);
+        }
     }
 
     @Override
