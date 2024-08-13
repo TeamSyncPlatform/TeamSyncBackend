@@ -22,6 +22,9 @@ public class Group {
     @Column(unique = true)
     private String name;
 
+    @ManyToOne
+    private User owner;
+
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Channel> channels = new ArrayList<>();
 
@@ -58,6 +61,7 @@ public class Group {
         StringBuilder sb = new StringBuilder();
         sb.append("Group{id=").append(id)
                 .append(", name='").append(name).append('\'')
+                .append(", owner=").append(owner != null ? owner.getFirstName() + " " + owner.getLastName() : "null")
                 .append(", isDeleted=").append(isDeleted)
                 .append(", channels=").append(channels.size()).append(" channel(s)")
                 .append(", members=").append(members.size()).append(" member(s)");
