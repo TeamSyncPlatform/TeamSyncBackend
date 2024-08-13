@@ -17,6 +17,7 @@ import java.util.Map;
 public class GroupDTO {
     private Long id;
     private String name;
+    private UserReference owner;
     private List<ChannelReference> channels;
     private Map<Long, UserReference> members;
 }

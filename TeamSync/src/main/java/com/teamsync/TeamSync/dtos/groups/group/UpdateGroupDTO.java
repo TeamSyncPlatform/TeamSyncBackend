@@ -13,6 +13,7 @@ import java.util.Map;
 public class UpdateGroupDTO {
     private Long id;
     private String name;
+    private UserReference owner;
     private List<ChannelReference> channels;
     private Map<Long, UserReference> members;
 }

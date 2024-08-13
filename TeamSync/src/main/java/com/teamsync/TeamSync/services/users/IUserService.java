@@ -15,4 +15,5 @@ public interface IUserService {
     User remove(Long userId);
     User handleLogin();
     Collection<Group> searchGroups(String userId, String searchValue);
+    public Collection<User> searchEligibleUsers(Long groupId, String searchValue);
 }

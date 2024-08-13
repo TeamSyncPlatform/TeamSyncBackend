@@ -13,4 +13,6 @@ public interface IGroupRepository extends JpaRepository<Group, Long> {
     Collection<Group> findByIsDeletedFalse();
     Optional<Group> findByName(String name);
     Optional<Group> findByNameAndIsDeletedFalse(String name);
+    Optional<Group> findByIdAndIsDeletedFalse(Long id);
+
 }

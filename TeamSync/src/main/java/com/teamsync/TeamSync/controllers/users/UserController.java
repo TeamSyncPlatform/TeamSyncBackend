@@ -103,4 +103,15 @@ public class UserController {
         return new ResponseEntity<>(groupResponses, HttpStatus.OK);
     }
 
+    @PutMapping("/groups/{groupId}/search")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<UserDTO>> searchEligibleUsers(@PathVariable Long groupId,
+                                                       @RequestBody GroupSearchRequest request) {
+        Collection<User> users = service.searchEligibleUsers(groupId, request.getSearchValue());
+        Collection<UserDTO> userResponses = users.stream()
+                .map(user -> mapper.map(user, UserDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(userResponses, HttpStatus.OK);
+    }
+
 }
