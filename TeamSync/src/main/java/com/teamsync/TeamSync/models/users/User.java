@@ -46,6 +46,8 @@ public class User{
 
     private Boolean isDeleted = false;
 
+    private String role = "user";
+
     private Set<NotificationType> ignoredNotifications = new HashSet<NotificationType>();
 
     public void addGroup(Group group){

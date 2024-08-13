@@ -18,6 +18,11 @@ public class UserUtils {
         user.setFirstName(principal.getAttributes().get("given_name").toString());
         user.setLastName(principal.getAttributes().get("family_name").toString());
         user.setExternalIdentification(principal.getName());
+        user.setRole(getRole(principal));
         return user;
+    }
+
+    private String getRole(DefaultOAuth2AuthenticatedPrincipal principal){
+        return principal.getAuthorities().toString().replace("]","").split("_")[1];
     }
 }

@@ -22,5 +22,6 @@ public class UpdateUserDTO {
     private String jobTitle;
     private List<String> skills;
     private GroupReference group;
+    private String role;
     private Set<NotificationType> ignoredNotifications;
 }
