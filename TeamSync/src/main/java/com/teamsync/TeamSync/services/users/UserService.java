@@ -108,6 +108,28 @@ public class UserService implements IUserService {
         }
     }
 
+    @Override
+    public Collection<User> searchEligibleUsers(Long groupId, String searchValue) {
+        Group group = groupRepository.findByIdAndIsDeletedFalse(groupId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found"));
+
+        List<User> eligibleUsers = userRepository.findEligibleUsersForGroup(group);
+
+        return filterUsersBySearchValue(eligibleUsers, searchValue);
+    }
+
+    private List<User> filterUsersBySearchValue(List<User> users, String searchValue) {
+        if (searchValue == null || searchValue.trim().isEmpty()) {
+            return users;
+        }
+
+        return users.stream()
+                .filter(user -> user.getFirstName().toLowerCase().contains(searchValue.toLowerCase()) ||
+                        user.getLastName().toLowerCase().contains(searchValue.toLowerCase()) ||
+                        user.getEmail().toLowerCase().contains(searchValue.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
     private List<Group> filterGroups(List<Group> groups, String searchValue) {
         if (searchValue == null || searchValue.trim().isEmpty()) {
             return groups.stream()

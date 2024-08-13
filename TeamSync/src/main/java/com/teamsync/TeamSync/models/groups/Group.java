@@ -52,4 +52,26 @@ public class Group {
     public void delete(){
         isDeleted = true;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Group{id=").append(id)
+                .append(", name='").append(name).append('\'')
+                .append(", isDeleted=").append(isDeleted)
+                .append(", channels=").append(channels.size()).append(" channel(s)")
+                .append(", members=").append(members.size()).append(" member(s)");
+
+        sb.append(", membersDetails=[");
+        members.forEach((userId, user) -> sb.append("User{id=").append(userId)
+                .append(", name=").append(user.getFirstName())
+                .append(" ").append(user.getLastName())
+                .append("}, "));
+        if (!members.isEmpty()) {
+            sb.setLength(sb.length() - 2);
+        }
+        sb.append("]}");
+
+        return sb.toString();
+    }
 }
