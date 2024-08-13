@@ -121,6 +121,21 @@ public class GroupService implements IGroupService {
     }
 
     @Override
+    public void removeMember(Long groupId, String externalIdentification) {
+        Group group = getExistingGroup(groupId);
+        User user = getExistingUser(externalIdentification);
+
+        if (user.equals(group.getOwner())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot remove the owner of the group");
+        }
+
+        group.removeMember(user);
+        user.removeGroup(group);
+        groupRepository.save(group);
+        userRepository.save(user);
+    }
+
+    @Override
     public Boolean isNameUnique(String groupName) {
         Optional<Group> groupOptional = groupRepository.findByNameAndIsDeletedFalse(groupName);
 
@@ -165,19 +180,12 @@ public class GroupService implements IGroupService {
     }
 
     private Group filterDeletedChannels(Group group) {
-        Group filteredGroup = new Group();
-
-        filteredGroup.setId(group.getId());
-        filteredGroup.setName(group.getName());
-        filteredGroup.setMembers(new HashMap<>(group.getMembers()));
-        filteredGroup.setIsDeleted(group.getIsDeleted());
-
         List<Channel> filteredChannels = group.getChannels().stream()
                 .filter(channel -> !channel.getIsDeleted())
                 .collect(Collectors.toList());
 
-        filteredGroup.setChannels(filteredChannels);
+        group.setChannels(filteredChannels);
 
-        return filteredGroup;
+        return group;
     }
 }

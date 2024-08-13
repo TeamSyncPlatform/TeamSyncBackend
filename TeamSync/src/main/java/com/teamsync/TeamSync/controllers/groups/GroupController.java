@@ -114,6 +114,17 @@ public class GroupController {
         }
     }
 
+    @DeleteMapping("/{groupId}/members/external/{externalUserId}")
+    public ResponseEntity<Void> removeMember(@PathVariable Long groupId, @PathVariable String externalUserId) {
+        try {
+            service.removeMember(groupId, externalUserId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getStatusCode());
+        }
+    }
+
+
     @GetMapping("/{groupId}/channels")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Collection<ChannelDTO>> getGroupChannels(@PathVariable Long groupId) {

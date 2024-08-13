@@ -16,6 +16,7 @@ public interface IGroupService {
     public void addMember(Long groupId, Long userId);
     public void addMember(Long groupId, String externalIdentification);
     public void removeMember(Long groupId, Long userId);
+    public void removeMember(Long groupId, String externalIdentification);
     public Boolean isNameUnique(String groupName);
     Collection<User> searchGroupMembersForDeletion (Long groupId, String searchValue);
     void setGroupOwner(Long id, String externalIdentification);
