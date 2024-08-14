@@ -1,21 +1,23 @@
 package com.teamsync.TeamSync.services.posts.implementations;
 
+import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.posts.Reaction;
+import com.teamsync.TeamSync.models.users.User;
+import com.teamsync.TeamSync.repositories.groups.IChannelRepository;
 import com.teamsync.TeamSync.repositories.posts.IPostRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
+import com.teamsync.TeamSync.utils.UserUtils;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +27,12 @@ public class PostService implements IPostService {
 
     @Autowired
     private IUserRepository userRepository;
+
+    @Autowired
+    private IChannelRepository channelRepository;
+
+    @Autowired
+    private UserUtils userUtils;
 
     @Override
     public Collection<Post> getAll() {
@@ -42,7 +50,17 @@ public class PostService implements IPostService {
 
     @Override
     public Post create(Post post) throws ResponseStatusException {
-        checkUserExistence(post.getAuthor().getId());
+        String externalId = userUtils.getLoggedUser().getExternalIdentification();
+        User user = getExistingUser(externalId);
+        Channel channel = getExistingChannel(post.getChannel().getId());
+
+        post.setAuthor(user);
+        post.setChannel(channel);
+        post.setCreationDate(new Date());
+
+        channel.addPost(post);
+        channelRepository.save(channel);
+
         return filterDeletedComments(postRepository.save(post));
     }
 
@@ -87,15 +105,33 @@ public class PostService implements IPostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
         if(post.getIsDeleted()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
         }
         return post;
+    }
+
+    private Channel getExistingChannel(Long channelId){
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Channel not found"));
+        if(channel.getIsDeleted()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Channel not found");
+        }
+        return channel;
     }
 
     private void checkUserExistence(Long userId){
         if (!userRepository.existsById(userId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
+    }
+
+    private User getExistingUser(String externalId){
+        User user = userRepository.getUserByExternalIdentification(externalId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if(user.getIsDeleted()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        return user;
     }
 
     private Post filterDeletedComments(Post post) {
