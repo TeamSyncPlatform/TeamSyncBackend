@@ -3,6 +3,7 @@ package com.teamsync.TeamSync.controllers.groups;
 import com.teamsync.TeamSync.dtos.groups.channel.ChannelDTO;
 import com.teamsync.TeamSync.dtos.groups.channel.CreateChannelDTO;
 import com.teamsync.TeamSync.dtos.groups.channel.UpdateChannelDTO;
+import com.teamsync.TeamSync.dtos.posts.post.PostDTO;
 import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.services.groups.interfaces.IChannelService;
 import lombok.RequiredArgsConstructor;
@@ -83,5 +84,19 @@ public class ChannelController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(isUnique, HttpStatus.OK);
+    }
+
+    @GetMapping("/{channelId}/posts")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<PostDTO>> getChannelPosts(@PathVariable Long channelId) {
+        Channel channel = service.get(channelId);
+        if (channel == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Collection<PostDTO> postResponses = channel.getPosts().stream()
+                .map(post -> mapper.map(post, PostDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(postResponses, HttpStatus.OK);
     }
 }
