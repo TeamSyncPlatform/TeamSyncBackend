@@ -17,5 +17,6 @@ public class Attachment {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    private String originalName;
 
 }
