@@ -58,8 +58,8 @@ public class PostService implements IPostService {
         post.setChannel(channel);
         post.setCreationDate(new Date());
 
-        channel.addPost(post);
-        channelRepository.save(channel);
+//        channel.addPost(post);
+//        channelRepository.save(channel);
 
         return filterDeletedComments(postRepository.save(post));
     }
