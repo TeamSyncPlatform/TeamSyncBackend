@@ -12,6 +12,8 @@ import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -154,5 +156,10 @@ public class PostService implements IPostService {
         filteredPost.setIsDeleted(post.getIsDeleted());
 
         return filteredPost;
+    }
+
+    @Override
+    public Page<Post> getPosts(Pageable pageable) {
+        return postRepository.findAllActivePosts(pageable);
     }
 }

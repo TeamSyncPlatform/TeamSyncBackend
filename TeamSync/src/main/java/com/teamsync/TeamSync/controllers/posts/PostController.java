@@ -14,6 +14,10 @@ import com.teamsync.TeamSync.services.posts.interfaces.IAttachmentService;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -129,5 +133,18 @@ public class PostController {
                 .map(comment -> mapper.map(comment, CommentDTO.class))
                 .collect(Collectors.toList());
         return new ResponseEntity<>(commentResponses, HttpStatus.OK);
+    }
+
+    @GetMapping("/paginated")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<PostDTO>> getPaginatedPosts(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int itemsPerPage) {
+
+        Pageable pageable = PageRequest.of(pageNumber, itemsPerPage, Sort.by(Sort.Direction.DESC, "creationDate"));
+        Page<Post> paginatedPosts = service.getPosts(pageable);
+
+        Page<PostDTO> postResponses = paginatedPosts.map(post -> mapper.map(post, PostDTO.class));
+        return new ResponseEntity<>(postResponses, HttpStatus.OK);
     }
 }
