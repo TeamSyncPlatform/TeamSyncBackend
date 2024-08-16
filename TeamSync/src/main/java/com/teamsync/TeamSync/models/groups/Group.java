@@ -25,7 +25,7 @@ public class Group {
     @ManyToOne
     private User owner;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Channel> channels = new ArrayList<>();
 
     @ManyToMany

@@ -5,10 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Cascade;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Data
@@ -32,6 +29,8 @@ public class Comment {
     @Column(name = "reaction_type")
     @CollectionTable(name = "comment_reactions", joinColumns = @JoinColumn(name = "comment_id"))
     private Map<Long, ReactionType> reactions = new HashMap<>();
+
+    private Date creationDate;
 
     @ManyToOne()
     @JoinColumn(name = "post_id", nullable = false)

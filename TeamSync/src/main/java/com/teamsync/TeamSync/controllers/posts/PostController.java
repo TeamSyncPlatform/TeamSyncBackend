@@ -1,20 +1,29 @@
 package com.teamsync.TeamSync.controllers.posts;
 
+import com.teamsync.TeamSync.dtos.groups.channel.ChannelDTO;
+import com.teamsync.TeamSync.dtos.posts.attachment.AttachmentDTO;
 import com.teamsync.TeamSync.dtos.posts.comment.CommentDTO;
 import com.teamsync.TeamSync.dtos.posts.post.CreatePostDTO;
 import com.teamsync.TeamSync.dtos.posts.post.PostDTO;
 import com.teamsync.TeamSync.dtos.posts.post.UpdatePostDTO;
+import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.posts.Reaction;
+import com.teamsync.TeamSync.services.posts.interfaces.IAttachmentService;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -25,6 +34,7 @@ import java.util.stream.Collectors;
 public class PostController {
     private final IPostService service;
     private final ModelMapper mapper;
+    private final IAttachmentService attachmentService;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -55,7 +65,14 @@ public class PostController {
     @PutMapping
     @PreAuthorize("isAuthenticated()")
     public PostDTO update(@RequestBody UpdatePostDTO post) {
-        return mapper.map(service.update(mapper.map(post, Post.class)), PostDTO.class);
+        post.getAttachments().forEach(attachment -> {
+            attachmentService.remove(attachment.getId());
+        });
+
+        post.setAttachments(new ArrayList<>());
+
+        Post updatedPost = service.update(mapper.map(post, Post.class));
+        return mapper.map(updatedPost, PostDTO.class);
     }
 
     @DeleteMapping("/{postId}/physical")
@@ -90,5 +107,44 @@ public class PostController {
     public ResponseEntity<PostDTO> removeReaction(@PathVariable Long postId, @RequestBody Reaction reaction) {
         Post post = service.removeReaction(postId, reaction);
         return new ResponseEntity<>(mapper.map(post, PostDTO.class), HttpStatus.OK);
+    }
+
+    @GetMapping("/{postId}/attachments")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<AttachmentDTO>> getPostAttachments(@PathVariable Long postId) {
+        Post post = service.get(postId);
+        if (post == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Collection<AttachmentDTO> attachmentsResponses = post.getAttachments().stream()
+                .map(attachment -> mapper.map(attachment, AttachmentDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(attachmentsResponses, HttpStatus.OK);
+    }
+
+    @GetMapping("/{postId}/comments")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<CommentDTO>> getPostComments(@PathVariable Long postId) {
+        Post post = service.get(postId);
+        if (post == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Collection<CommentDTO> commentResponses = post.getComments().stream()
+                .map(comment -> mapper.map(comment, CommentDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(commentResponses, HttpStatus.OK);
+    }
+
+    @GetMapping("/paginated")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<PostDTO>> getPaginatedPosts(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int itemsPerPage) {
+
+        Pageable pageable = PageRequest.of(pageNumber, itemsPerPage, Sort.by(Sort.Direction.DESC, "creationDate"));
+        Page<Post> paginatedPosts = service.getPosts(pageable);
+
+        Page<PostDTO> postResponses = paginatedPosts.map(post -> mapper.map(post, PostDTO.class));
+        return new ResponseEntity<>(postResponses, HttpStatus.OK);
     }
 }

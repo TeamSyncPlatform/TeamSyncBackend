@@ -18,10 +18,5 @@ import java.util.Map;
 @Data
 public class CreatePostDTO {
     private String content;
-    private Date creationDate;
-    private List<CommentReference> comments;
-    private List<AttachmentReference> attachments;
-    private Map<Long, ReactionType> reactions;
-    private UserReference author;
     private ChannelReference channel;
 }
