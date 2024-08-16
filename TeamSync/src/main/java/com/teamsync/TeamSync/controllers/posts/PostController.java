@@ -107,4 +107,17 @@ public class PostController {
                 .collect(Collectors.toList());
         return new ResponseEntity<>(attachmentsResponses, HttpStatus.OK);
     }
+
+    @GetMapping("/{postId}/comments")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<CommentDTO>> getPostComments(@PathVariable Long postId) {
+        Post post = service.get(postId);
+        if (post == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Collection<CommentDTO> commentResponses = post.getComments().stream()
+                .map(comment -> mapper.map(comment, CommentDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(commentResponses, HttpStatus.OK);
+    }
 }
