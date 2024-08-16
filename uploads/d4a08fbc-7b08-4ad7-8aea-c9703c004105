@@ -1,0 +1,49 @@
+1. pom.xml - parent i properties polja
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.18.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	
+	<properties>
+		<java.version>11</java.version>
+	</properties>
+2. Bread.java
+
+package com.example.cloudcomputing.springdb;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+import lombok.Data;
+
+@Data
+@Entity
+public class Bread {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+}
+
+3. SpringDbApplicationTests.java
+
+package com.example.cloudcomputing.springdb;
+
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
+
+// @SpringBootTest
+// class SpringDbApplicationTests {
+
+//	@Test
+//	void contextLoads() {
+//	}
+
+// }
+

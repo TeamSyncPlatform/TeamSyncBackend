@@ -3,10 +3,12 @@ package com.teamsync.TeamSync.services.posts.implementations;
 import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.posts.Reaction;
+import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.posts.ICommentRepository;
 import com.teamsync.TeamSync.repositories.posts.IPostRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.posts.interfaces.ICommentService;
+import com.teamsync.TeamSync.utils.UserUtils;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.Date;
 
 @Service
 public class CommentService implements ICommentService {
@@ -26,6 +29,9 @@ public class CommentService implements ICommentService {
 
     @Autowired
     private IUserRepository userRepository;
+
+    @Autowired
+    private UserUtils userUtils;
 
     @Override
     public Collection<Comment> getAll() {
@@ -40,7 +46,11 @@ public class CommentService implements ICommentService {
     @Override
     public Comment create(Comment comment) throws ResponseStatusException {
         Post post = getExistingPost(comment.getPost().getId());
+        String externalId = userUtils.getLoggedUser().getExternalIdentification();
+        User user = getExistingUser(externalId);
         comment.setPost(post);
+        comment.setCreationDate(new Date());
+        comment.setAuthor(user);
         Comment savedComment = commentRepository.save(comment);
         // Update the post's comments list
         post.addComment(savedComment);
@@ -115,5 +125,13 @@ public class CommentService implements ICommentService {
         }
     }
 
+    private User getExistingUser(String externalId){
+        User user = userRepository.getUserByExternalIdentification(externalId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if(user.getIsDeleted()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        return user;
+    }
 
 }
