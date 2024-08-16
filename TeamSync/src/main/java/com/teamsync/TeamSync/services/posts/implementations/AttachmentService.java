@@ -73,6 +73,9 @@ public class AttachmentService implements IAttachmentService {
     public Attachment remove(Long attachmentId) {
         Attachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Attachment not found"));
+
+        removeFileFromFileSystem(attachment.getPath());
+
         attachmentRepository.delete(attachment);
         return attachment;
     }
@@ -111,6 +114,15 @@ public class AttachmentService implements IAttachmentService {
             return resource;
         } else {
             throw new IOException("File not found or not readable");
+        }
+    }
+
+    public void removeFileFromFileSystem(String filePath) {
+        try {
+            Path path = Paths.get(filePath);
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete file from file system", e);
         }
     }
 }

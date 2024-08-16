@@ -10,6 +10,7 @@ import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.posts.Reaction;
+import com.teamsync.TeamSync.services.posts.interfaces.IAttachmentService;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class PostController {
     private final IPostService service;
     private final ModelMapper mapper;
+    private final IAttachmentService attachmentService;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -58,7 +61,14 @@ public class PostController {
     @PutMapping
     @PreAuthorize("isAuthenticated()")
     public PostDTO update(@RequestBody UpdatePostDTO post) {
-        return mapper.map(service.update(mapper.map(post, Post.class)), PostDTO.class);
+        post.getAttachments().forEach(attachment -> {
+            attachmentService.remove(attachment.getId());
+        });
+
+        post.setAttachments(new ArrayList<>());
+
+        Post updatedPost = service.update(mapper.map(post, Post.class));
+        return mapper.map(updatedPost, PostDTO.class);
     }
 
     @DeleteMapping("/{postId}/physical")
