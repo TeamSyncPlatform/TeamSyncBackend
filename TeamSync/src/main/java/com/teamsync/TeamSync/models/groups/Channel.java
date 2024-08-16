@@ -2,6 +2,7 @@ package com.teamsync.TeamSync.models.groups;
 import com.teamsync.TeamSync.models.posts.Post;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,11 @@ public class Channel {
 
     public void delete(){
         isDeleted = true;
+    }
+
+    @Override
+    public String toString(){
+        return "";
     }
 
 }

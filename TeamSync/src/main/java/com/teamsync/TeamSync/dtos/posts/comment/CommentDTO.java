@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class CommentDTO {
     private Long id;
     private String content;
     private UserReference author;
+    private Date creationDate;
     private Map<Long, ReactionType> reactions;
     private PostReference post;
 }

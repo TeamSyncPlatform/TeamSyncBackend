@@ -15,6 +15,5 @@ import java.util.Map;
 public class CreateCommentDTO {
     private String content;
     private UserReference author;
-    private Map<Long, ReactionType> reactions;
     private PostReference post;
 }
