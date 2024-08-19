@@ -1,16 +1,21 @@
 package com.teamsync.TeamSync.controllers.users;
 
 import com.teamsync.TeamSync.dtos.groups.group.GroupDTO;
+import com.teamsync.TeamSync.dtos.posts.post.PostDTO;
 import com.teamsync.TeamSync.dtos.search.GroupSearchRequest;
 import com.teamsync.TeamSync.dtos.users.CreateUserDTO;
 import com.teamsync.TeamSync.dtos.users.UpdateUserDTO;
 import com.teamsync.TeamSync.dtos.users.UserDTO;
 import com.teamsync.TeamSync.models.groups.Group;
+import com.teamsync.TeamSync.models.posts.Post;
+import com.teamsync.TeamSync.models.users.Image;
 import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.services.users.IUserService;
+import com.teamsync.TeamSync.services.users.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,8 +26,11 @@ import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrinci
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -33,6 +41,7 @@ import java.util.stream.Collectors;
 public class UserController {
     private final IUserService service;
     private final ModelMapper mapper;
+    private final ImageService imageService;
 
     @GetMapping
     @PreAuthorize("hasRole('admin')")
@@ -73,7 +82,14 @@ public class UserController {
     @PutMapping
     @PreAuthorize("isAuthenticated()")
     public UserDTO update(@RequestBody UpdateUserDTO user) {
-        return mapper.map(service.update(mapper.map(user, User.class)), UserDTO.class);
+        User oldUser = service.get(user.getId());
+        user.setProfileImage(null);
+        User newUser = service.update(mapper.map(user, User.class));
+        if (oldUser.getProfileImage() != null){
+
+            imageService.removeImage(oldUser.getProfileImage().getId());
+        }
+        return mapper.map(newUser, UserDTO.class);
     }
 
     @DeleteMapping("/{userId}")
@@ -112,6 +128,29 @@ public class UserController {
                 .map(user -> mapper.map(user, UserDTO.class))
                 .collect(Collectors.toList());
         return new ResponseEntity<>(userResponses, HttpStatus.OK);
+    }
+
+    @PostMapping("/{userId}/upload-image")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> uploadImage(@PathVariable Long userId, @RequestParam("file") MultipartFile file) throws IOException {
+        User user = service.get(userId);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Image image = imageService.uploadImage(file);
+        user.setProfileImage(image);
+        service.update(user);
+
+        return new ResponseEntity<>(mapper.map(user, UserDTO.class), HttpStatus.OK);
+    }
+
+    @GetMapping("/image/{imageId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Resource> getImage(@PathVariable Long imageId) throws IOException {
+        Image image = imageService.getImage(imageId);
+        Resource resource = imageService.getFileFromFileSystem(image.getPath());
+        return ResponseEntity.ok(resource);
     }
 
 }
