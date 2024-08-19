@@ -18,5 +18,6 @@ public interface IPostService {
     Post removeLogical(Long postId);
     Post addReaction(Long postId, Reaction reaction);
     Post removeReaction(Long postId, Reaction reaction);
-    Page<Post> getPosts(Pageable pageable);
+    Page<Post> getUserPosts(Long userId, Pageable pageable);
+    Page<Post> getChannelPosts(Long channelId, Pageable pageable);
 }

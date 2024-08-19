@@ -12,6 +12,7 @@ import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.posts.Reaction;
 import com.teamsync.TeamSync.services.posts.interfaces.IAttachmentService;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -135,14 +136,29 @@ public class PostController {
         return new ResponseEntity<>(commentResponses, HttpStatus.OK);
     }
 
-    @GetMapping("/paginated")
+    @GetMapping("/user/{userId}/paginated")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Page<PostDTO>> getPaginatedPosts(
+    public ResponseEntity<Page<PostDTO>> getUserPaginatedPosts(
+            @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int itemsPerPage) {
 
         Pageable pageable = PageRequest.of(pageNumber, itemsPerPage, Sort.by(Sort.Direction.DESC, "creationDate"));
-        Page<Post> paginatedPosts = service.getPosts(pageable);
+        Page<Post> paginatedPosts = service.getUserPosts(userId, pageable);
+
+        Page<PostDTO> postResponses = paginatedPosts.map(post -> mapper.map(post, PostDTO.class));
+        return new ResponseEntity<>(postResponses, HttpStatus.OK);
+    }
+
+    @GetMapping("/channel/{channelId}/paginated")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<PostDTO>> getPaginatedChannelPosts(
+            @PathVariable Long channelId,
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int itemsPerPage) {
+
+        Pageable pageable = PageRequest.of(pageNumber, itemsPerPage, Sort.by(Sort.Direction.DESC, "creationDate"));
+        Page<Post> paginatedPosts = service.getChannelPosts(channelId, pageable);
 
         Page<PostDTO> postResponses = paginatedPosts.map(post -> mapper.map(post, PostDTO.class));
         return new ResponseEntity<>(postResponses, HttpStatus.OK);

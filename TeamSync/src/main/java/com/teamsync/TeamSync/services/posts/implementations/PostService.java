@@ -159,7 +159,12 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public Page<Post> getPosts(Pageable pageable) {
-        return postRepository.findAllActivePosts(pageable);
+    public Page<Post> getUserPosts(Long userId, Pageable pageable) {
+        return postRepository.findAllUserActivePosts(userId, pageable);
+    }
+
+    @Override
+    public Page<Post> getChannelPosts(Long channelId, Pageable pageable) {
+        return postRepository.findAllActivePostsByChannel(channelId, pageable);
     }
 }
