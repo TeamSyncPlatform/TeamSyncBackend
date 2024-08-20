@@ -52,10 +52,19 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User update(User user) throws ResponseStatusException {
-        if (!userRepository.existsById(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
+    public User update(User updatedUser) throws ResponseStatusException {
+        User user = userRepository.findById(updatedUser.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        user.setFirstName(updatedUser.getFirstName());
+        user.setLastName(updatedUser.getLastName());
+        user.setAddress(updatedUser.getAddress());
+        user.setPhoneNumber(updatedUser.getPhoneNumber());
+        user.setDepartment(updatedUser.getDepartment());
+        user.setJobTitle(updatedUser.getJobTitle());
+        user.setSkills(updatedUser.getSkills());
+        user.setProfileImage(updatedUser.getProfileImage());
+
         return userRepository.save(user);
     }
 
@@ -116,6 +125,12 @@ public class UserService implements IUserService {
         List<User> eligibleUsers = userRepository.findEligibleUsersForGroup(group);
 
         return filterUsersBySearchValue(eligibleUsers, searchValue);
+    }
+
+    @Override
+    public User getByEmail(String email) {
+        return userRepository.getUserByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     private List<User> filterUsersBySearchValue(List<User> users, String searchValue) {

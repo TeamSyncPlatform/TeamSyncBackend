@@ -37,6 +37,9 @@ public class User{
 
     private String jobTitle;
 
+    @OneToOne
+    private Image profileImage;
+
     @ElementCollection
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<String> skills;

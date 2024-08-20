@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface IUserRepository extends JpaRepository<User, Long> {
     Optional<User> getUserByExternalIdentification(String externalIdentification);
-
+    Optional<User> getUserByEmail(String email);
     @Query("SELECT u FROM User u WHERE :group NOT MEMBER OF u.groups AND u.isDeleted = false")
     List<User> findEligibleUsersForGroup(@Param("group") Group group);
 }
