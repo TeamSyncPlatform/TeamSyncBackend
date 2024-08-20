@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 public class CommentService implements ICommentService {
@@ -70,7 +71,9 @@ public class CommentService implements ICommentService {
                 user.getLastName()
         );
 
-        notificationService.create(new Notification(notificationMessage, NotificationType.Comment, new Date(), comment.getPost().getAuthor()));
+        if(!Objects.equals(comment.getAuthor().getId(), comment.getPost().getAuthor().getId())){
+            notificationService.create(new Notification(notificationMessage, NotificationType.Comment, new Date(), comment.getPost().getAuthor()));
+        }
 
 
         return savedComment;
@@ -119,7 +122,9 @@ public class CommentService implements ICommentService {
                 reaction.getType()
         );
 
-        notificationService.create(new Notification(notificationMessage, NotificationType.Reaction, new Date(), comment.getAuthor()));
+        if(reaction.getUserId() != comment.getAuthor().getId()){
+            notificationService.create(new Notification(notificationMessage, NotificationType.Reaction, new Date(), comment.getAuthor()));
+        }
 
         return commentRepository.save(comment);
     }

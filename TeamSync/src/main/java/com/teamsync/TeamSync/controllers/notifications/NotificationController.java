@@ -86,4 +86,13 @@ public class NotificationController {
         return new ResponseEntity<>(mapper.map(result, NotificationDTO.class), HttpStatus.OK);
     }
 
+    @PutMapping({"/user/{userId}/read"})
+    public ResponseEntity<Collection<NotificationDTO>> readAllByUser(@PathVariable Long userId) {
+        Collection<Notification> notifications = service.readAllByUserId(userId);
+        Collection<NotificationDTO> notificationResponses =  notifications.stream()
+                .map(accommodation -> mapper.map(accommodation, NotificationDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(notificationResponses, HttpStatus.OK);
+    }
+
 }

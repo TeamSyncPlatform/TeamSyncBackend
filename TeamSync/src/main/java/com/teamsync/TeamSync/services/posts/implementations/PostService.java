@@ -109,7 +109,10 @@ public class PostService implements IPostService {
                 reaction.getType()
         );
 
-        notificationService.create(new Notification(notificationMessage, NotificationType.Reaction, new Date(), post.getAuthor()));
+        if(reaction.getUserId() != post.getAuthor().getId()){
+            notificationService.create(new Notification(notificationMessage, NotificationType.Reaction, new Date(), post.getAuthor()));
+        }
+
         return filterDeletedComments(postRepository.save(post));
     }
 

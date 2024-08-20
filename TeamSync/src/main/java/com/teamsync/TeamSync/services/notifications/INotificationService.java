@@ -14,4 +14,5 @@ public interface INotificationService {
     Collection<Notification> getByUserId(Long userId);
     Integer getUnreadCountByUserId(Long userId);
     Notification read(Long notificationId);
+    Collection<Notification> readAllByUserId(Long userId);
 }

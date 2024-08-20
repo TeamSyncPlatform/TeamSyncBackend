@@ -83,6 +83,19 @@ public class NotificationService implements INotificationService {
         return update(notification);
     }
 
+    @Override
+    public Collection<Notification> readAllByUserId(Long userId) {
+        User user = userService.get(userId);
+        Collection<Notification> notifications = notificationRepository.findAllByUserId(userId);
+
+        for (Notification notification : notifications) {
+            notification.setIsRead(true);
+        }
+
+        notificationRepository.saveAll(notifications);
+        return notifications;
+    }
+
     private void sendNotification(Notification notification) {
         simpMessagingTemplate.convertAndSend("/notification-publisher/" + notification.getUser().getId(), notification);
     }
