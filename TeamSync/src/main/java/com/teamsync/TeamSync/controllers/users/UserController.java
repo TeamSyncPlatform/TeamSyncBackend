@@ -72,6 +72,16 @@ public class UserController {
         }
         return new ResponseEntity<>(mapper.map(user, UserDTO.class), HttpStatus.OK);
     }
+    @GetMapping("/email/{email}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> getByEmail(@PathVariable String email) {
+        User user = service.getByEmail(email);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(mapper.map(user, UserDTO.class), HttpStatus.OK);
+    }
+
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")

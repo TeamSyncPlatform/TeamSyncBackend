@@ -127,6 +127,12 @@ public class UserService implements IUserService {
         return filterUsersBySearchValue(eligibleUsers, searchValue);
     }
 
+    @Override
+    public User getByEmail(String email) {
+        return userRepository.getUserByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
     private List<User> filterUsersBySearchValue(List<User> users, String searchValue) {
         if (searchValue == null || searchValue.trim().isEmpty()) {
             return users;
