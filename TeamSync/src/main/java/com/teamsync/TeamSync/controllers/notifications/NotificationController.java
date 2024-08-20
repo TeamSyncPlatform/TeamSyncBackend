@@ -64,26 +64,26 @@ public class NotificationController {
         }
         return new ResponseEntity<>( mapper.map(notification,NotificationDTO.class), HttpStatus.OK);
     }
-//
-//    @GetMapping({"/user/{userId}"})
-//    public ResponseEntity<Collection<NotificationDTO>> getByUserId(@PathVariable Long userId){
-//        Collection<Notification> notifications = service.getByUserId(userId);
-//        Collection<NotificationDTO> notificationResponses =  notifications.stream()
-//                .map(accommodation -> mapper.map(accommodation, NotificationDTO.class))
-//                .collect(Collectors.toList());
-//        return new ResponseEntity<>(notificationResponses, HttpStatus.OK);
-//    }
-//
-//    @GetMapping({"/user/{userId}/unread-count"})
-//    public ResponseEntity<Integer> getUnreadCountByUserId(@PathVariable Long userId){
-//        Integer unread = service.getUnreadCountByUserId(userId);
-//        return new ResponseEntity<>(unread, HttpStatus.OK);
-//    }
-//
-//    @PutMapping({"/{notificationId}/read"})
-//    public ResponseEntity<NotificationDTO> read(@PathVariable Long notificationId) {
-//        Notification result = service.read(notificationId);
-//        return new ResponseEntity<>(mapper.map(result, NotificationDTO.class), HttpStatus.OK);
-//    }
+
+    @GetMapping({"/user/{userId}"})
+    public ResponseEntity<Collection<NotificationDTO>> getByUserId(@PathVariable Long userId){
+        Collection<Notification> notifications = service.getByUserId(userId);
+        Collection<NotificationDTO> notificationResponses =  notifications.stream()
+                .map(accommodation -> mapper.map(accommodation, NotificationDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(notificationResponses, HttpStatus.OK);
+    }
+
+    @GetMapping({"/user/{userId}/unread-count"})
+    public ResponseEntity<Integer> getUnreadCountByUserId(@PathVariable Long userId){
+        Integer unread = service.getUnreadCountByUserId(userId);
+        return new ResponseEntity<>(unread, HttpStatus.OK);
+    }
+
+    @PutMapping({"/{notificationId}/read"})
+    public ResponseEntity<NotificationDTO> read(@PathVariable Long notificationId) {
+        Notification result = service.read(notificationId);
+        return new ResponseEntity<>(mapper.map(result, NotificationDTO.class), HttpStatus.OK);
+    }
 
 }

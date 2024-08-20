@@ -1,18 +1,27 @@
 package com.teamsync.TeamSync.services.notifications;
 
 import com.teamsync.TeamSync.models.notifications.Notification;
+import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.notifications.INotificationRepository;
+import com.teamsync.TeamSync.services.users.IUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService implements INotificationService {
-    @Autowired
-    private INotificationRepository notificationRepository;
+    private final INotificationRepository notificationRepository;
+
+    private final IUserService userService;
+
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
     public Collection<Notification> getAll() {
@@ -27,7 +36,10 @@ public class NotificationService implements INotificationService {
 
     @Override
     public Notification create(Notification notification) throws ResponseStatusException {
-        return notificationRepository.save(notification);
+        Notification createdNotification = notificationRepository.save(notification);
+        notificationRepository.flush();
+        sendNotification(createdNotification);
+        return createdNotification;
     }
 
     @Override
@@ -45,4 +57,34 @@ public class NotificationService implements INotificationService {
         notificationRepository.delete(notification);
         return notification;
     }
+
+    @Override
+    public Collection<Notification> getByUserId(Long userId) {
+        User user = userService.get(userId);
+        if (user.getIgnoredNotifications().isEmpty()) {
+            return notificationRepository.findAllByUserId(userId);
+        }
+        return notificationRepository.findAllByUserIdAndTypeNotIn(userId, new ArrayList<>(user.getIgnoredNotifications()));
+    }
+
+    @Override
+    public Integer getUnreadCountByUserId(Long userId) {
+        User user = userService.get(userId);
+        if (user.getIgnoredNotifications().isEmpty()) {
+            return notificationRepository.countByUserIdAndIsReadFalse(userId);
+        }
+        return notificationRepository.countByUserIdAndIsReadFalseAndTypeNotIn(userId, new ArrayList<>(user.getIgnoredNotifications()));
+    }
+
+    @Override
+    public Notification read(Long notificationId) {
+        Notification notification = get(notificationId);
+        notification.setIsRead(true);
+        return update(notification);
+    }
+
+    private void sendNotification(Notification notification) {
+        simpMessagingTemplate.convertAndSend("/notification-publisher/" + notification.getUser().getId(), notification);
+    }
+
 }

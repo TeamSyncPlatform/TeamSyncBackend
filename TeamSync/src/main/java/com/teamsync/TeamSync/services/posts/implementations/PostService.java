@@ -1,6 +1,8 @@
 package com.teamsync.TeamSync.services.posts.implementations;
 
 import com.teamsync.TeamSync.models.groups.Channel;
+import com.teamsync.TeamSync.models.notifications.Notification;
+import com.teamsync.TeamSync.models.notifications.NotificationType;
 import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.posts.Reaction;
@@ -8,6 +10,7 @@ import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.groups.IChannelRepository;
 import com.teamsync.TeamSync.repositories.posts.IPostRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
+import com.teamsync.TeamSync.services.notifications.INotificationService;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.hibernate.Hibernate;
@@ -35,6 +38,9 @@ public class PostService implements IPostService {
 
     @Autowired
     private UserUtils userUtils;
+
+    @Autowired
+    private INotificationService notificationService;
 
     @Override
     public Collection<Post> getAll() {
@@ -90,15 +96,26 @@ public class PostService implements IPostService {
     @Override
     public Post addReaction(Long postId, Reaction reaction) {
         Post post = getExistingPost(postId);
-        checkUserExistence(reaction.getUserId());
+        User user = userRepository.findByIdAndIsDeletedIsFalse(reaction.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         post.addReaction(reaction);
+
+        String notificationMessage = String.format(
+                "User %s %s has reacted on your post with %s",
+                user.getFirstName(),
+                user.getLastName(),
+                reaction.getType()
+        );
+
+        notificationService.create(new Notification(notificationMessage, NotificationType.Reaction, new Date(), post.getAuthor()));
         return filterDeletedComments(postRepository.save(post));
     }
 
     @Override
     public Post removeReaction(Long postId, Reaction reaction) {
         Post post = getExistingPost(postId);
-        checkUserExistence(reaction.getUserId());
+        User user = userRepository.findByIdAndIsDeletedIsFalse(reaction.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         post.removeReaction(reaction);
         return filterDeletedComments(postRepository.save(post));
     }
@@ -135,6 +152,7 @@ public class PostService implements IPostService {
         }
         return user;
     }
+
 
     private Post filterDeletedComments(Post post) {
         Post filteredPost = new Post();

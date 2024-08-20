@@ -11,9 +11,7 @@ public interface INotificationService {
     Notification create(Notification notification) throws ResponseStatusException;
     Notification update(Notification notification) throws ResponseStatusException;
     Notification remove(Long notificationId);
-//    Collection<Notification> getByUserId(Long userId);
-//    void removeAll();
-//    void removeAllByUser(Long userId);
-//    Integer getUnreadCountByUserId(Long userId);
-//    Notification read(Long notificationId);
+    Collection<Notification> getByUserId(Long userId);
+    Integer getUnreadCountByUserId(Long userId);
+    Notification read(Long notificationId);
 }
