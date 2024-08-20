@@ -2,6 +2,7 @@ package com.teamsync.TeamSync.dtos.users;
 
 import com.teamsync.TeamSync.dtos.groups.group.GroupReference;
 import com.teamsync.TeamSync.models.notifications.NotificationType;
+import com.teamsync.TeamSync.models.users.Image;
 import com.teamsync.TeamSync.models.users.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -28,5 +29,6 @@ public class UserDTO {
     private List<String> skills;
     private GroupReference group;
     private String role;
+    private Image profileImage;
     private Set<NotificationType> ignoredNotifications;
 }

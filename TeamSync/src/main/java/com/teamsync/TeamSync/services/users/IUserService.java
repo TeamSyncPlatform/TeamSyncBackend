@@ -16,4 +16,5 @@ public interface IUserService {
     User handleLogin();
     Collection<Group> searchGroups(String userId, String searchValue);
     public Collection<User> searchEligibleUsers(Long groupId, String searchValue);
+    User getByEmail(String email);
 }
