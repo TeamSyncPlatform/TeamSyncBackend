@@ -101,7 +101,9 @@ public class PostService implements IPostService {
         post.addReaction(reaction);
 
         String notificationMessage = String.format(
-                "User %s %s has reacted on your post with %s",
+                "%s#%s  -  User %s %s has reacted on your post with %s",
+                post.getChannel().getGroup().getName(),
+                post.getChannel().getName(),
                 user.getFirstName(),
                 user.getLastName(),
                 reaction.getType()

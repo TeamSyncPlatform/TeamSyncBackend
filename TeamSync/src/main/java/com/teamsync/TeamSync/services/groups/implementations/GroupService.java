@@ -2,10 +2,13 @@ package com.teamsync.TeamSync.services.groups.implementations;
 
 import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.groups.Group;
+import com.teamsync.TeamSync.models.notifications.Notification;
+import com.teamsync.TeamSync.models.notifications.NotificationType;
 import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.groups.IGroupRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.groups.interfaces.IGroupService;
+import com.teamsync.TeamSync.services.notifications.INotificationService;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,9 @@ public class GroupService implements IGroupService {
 
     @Autowired
     private IUserRepository userRepository;
+
+    @Autowired
+    private INotificationService notificationService;
 
     @Override
     public Collection<Group> getAll() {
@@ -104,6 +110,13 @@ public class GroupService implements IGroupService {
         user.addGroup(group);
         groupRepository.save(group);
         userRepository.save(user);
+
+        String notificationMessage = String.format(
+                "You have been added to the group %s",
+                group.getName()
+        );
+
+        notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
     }
 
     public void removeMember(Long groupId, Long userId){
@@ -118,6 +131,13 @@ public class GroupService implements IGroupService {
         user.removeGroup(group);
         groupRepository.save(group);
         userRepository.save(user);
+
+        String notificationMessage = String.format(
+                "You have been removed from the group %s",
+                group.getName()
+        );
+
+        notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
     }
 
     @Override

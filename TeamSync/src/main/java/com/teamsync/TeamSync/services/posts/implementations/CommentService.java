@@ -1,5 +1,7 @@
 package com.teamsync.TeamSync.services.posts.implementations;
 
+import com.teamsync.TeamSync.models.notifications.Notification;
+import com.teamsync.TeamSync.models.notifications.NotificationType;
 import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.posts.Reaction;
@@ -7,6 +9,7 @@ import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.posts.ICommentRepository;
 import com.teamsync.TeamSync.repositories.posts.IPostRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
+import com.teamsync.TeamSync.services.notifications.INotificationService;
 import com.teamsync.TeamSync.services.posts.interfaces.ICommentService;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.hibernate.Hibernate;
@@ -33,6 +36,9 @@ public class CommentService implements ICommentService {
     @Autowired
     private UserUtils userUtils;
 
+    @Autowired
+    private INotificationService notificationService;
+
     @Override
     public Collection<Comment> getAll() {
         return commentRepository.findByIsDeletedFalse();
@@ -55,6 +61,17 @@ public class CommentService implements ICommentService {
         // Update the post's comments list
         post.addComment(savedComment);
         postRepository.save(post);
+
+        String notificationMessage = String.format(
+                "%s#%s  -  User %s %s has commented on your post",
+                comment.getPost().getChannel().getGroup().getName(),
+                comment.getPost().getChannel().getName(),
+                user.getFirstName(),
+                user.getLastName()
+        );
+
+        notificationService.create(new Notification(notificationMessage, NotificationType.Comment, new Date(), comment.getPost().getAuthor()));
+
 
         return savedComment;
     }
@@ -88,8 +105,22 @@ public class CommentService implements ICommentService {
     @Override
     public Comment addReaction(Long commentId, Reaction reaction) {
         Comment comment = getExistingComment(commentId);
-        checkUserExistence(reaction.getUserId());
+        User user = userRepository.findByIdAndIsDeletedIsFalse(reaction.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
         comment.addReaction(reaction);
+
+        String notificationMessage = String.format(
+                "%s#%s  -  User %s %s has reacted on your comment with %s",
+                comment.getPost().getChannel().getGroup().getName(),
+                comment.getPost().getChannel().getName(),
+                user.getFirstName(),
+                user.getLastName(),
+                reaction.getType()
+        );
+
+        notificationService.create(new Notification(notificationMessage, NotificationType.Reaction, new Date(), comment.getAuthor()));
+
         return commentRepository.save(comment);
     }
 
