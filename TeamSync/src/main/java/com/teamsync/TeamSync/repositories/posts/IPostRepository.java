@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface IPostRepository extends JpaRepository<Post, Long> {
@@ -21,4 +23,6 @@ public interface IPostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE p.isDeleted = false AND p.channel.id = :channelId")
     Page<Post> findAllActivePostsByChannel(@Param("channelId") Long channelId, Pageable pageable);
 
+    List<Post> findByCreationDateBetweenAndChannelGroupIsDeletedFalse(Date startDate, Date endDate);
+    List<Post> findAllByChannelGroupIdAndCreationDateBetween(Long groupId, Date startDate, Date date);
 }
