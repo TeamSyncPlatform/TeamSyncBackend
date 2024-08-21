@@ -25,4 +25,5 @@ public interface IPostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByCreationDateBetweenAndChannelGroupIsDeletedFalse(Date startDate, Date endDate);
     List<Post> findAllByChannelGroupIdAndCreationDateBetween(Long groupId, Date startDate, Date date);
+    Long countByChannelGroupIdAndCreationDateBetween(Long id, Date startDate, Date endDate);
 }

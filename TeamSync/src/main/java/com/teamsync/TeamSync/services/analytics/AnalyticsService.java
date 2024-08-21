@@ -1,11 +1,12 @@
 package com.teamsync.TeamSync.services.analytics;
 
 import com.teamsync.TeamSync.dtos.analytics.ActiveUserDTO;
+import com.teamsync.TeamSync.dtos.analytics.GroupPostsDTO;
+import com.teamsync.TeamSync.dtos.groups.group.GroupDTO;
 import com.teamsync.TeamSync.dtos.users.UserDTO;
 import com.teamsync.TeamSync.models.groups.Group;
 import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Post;
-import com.teamsync.TeamSync.models.posts.Reaction;
 import com.teamsync.TeamSync.models.posts.ReactionType;
 import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.groups.IGroupRepository;
@@ -111,5 +112,28 @@ public class AnalyticsService implements IAnalyticsService {
         });
 
         return posts.size() > 10 ? posts.subList(0, 10) : posts;
+    }
+
+
+    @Override
+    public Collection<GroupPostsDTO> getGroupsPostsCount(String period) {
+        Date startDate = Date.from(calculateStartDate(period).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date endDate = new Date();
+
+        List<Group> groups = groupRepository.findAllByIsDeletedFalse();
+
+        return groups.stream()
+                .map(group -> {
+                    Long postsCount = postRepository.countByChannelGroupIdAndCreationDateBetween(
+                            group.getId(),
+                            startDate,
+                            endDate
+                    );
+
+                    GroupDTO groupDTO = mapper.map(group, GroupDTO.class);
+
+                    return new GroupPostsDTO(groupDTO, postsCount);
+                })
+                .collect(Collectors.toList());
     }
 }

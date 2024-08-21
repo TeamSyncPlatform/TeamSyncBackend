@@ -1,6 +1,7 @@
 package com.teamsync.TeamSync.controllers.analytics;
 
 import com.teamsync.TeamSync.dtos.analytics.ActiveUserDTO;
+import com.teamsync.TeamSync.dtos.analytics.GroupPostsDTO;
 import com.teamsync.TeamSync.dtos.posts.post.PostDTO;
 import com.teamsync.TeamSync.dtos.users.UserDTO;
 import com.teamsync.TeamSync.models.posts.Post;
@@ -40,6 +41,13 @@ public class AnalyticsController {
     public ResponseEntity<Collection<ActiveUserDTO>> getMostActiveUsers(@PathVariable Long groupId, @PathVariable String period) {
         Collection<ActiveUserDTO> users = service.getMostActiveUsers(groupId, period);
         return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @GetMapping("group-posts-stats/{period}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<GroupPostsDTO>> getGroupPostsStats(@PathVariable String period) {
+        Collection<GroupPostsDTO> stats = service.getGroupsPostsCount(period);
+        return new ResponseEntity<>(stats, HttpStatus.OK);
     }
 
 }
