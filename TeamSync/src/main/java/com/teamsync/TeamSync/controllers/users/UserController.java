@@ -7,6 +7,7 @@ import com.teamsync.TeamSync.dtos.users.CreateUserDTO;
 import com.teamsync.TeamSync.dtos.users.UpdateUserDTO;
 import com.teamsync.TeamSync.dtos.users.UserDTO;
 import com.teamsync.TeamSync.models.groups.Group;
+import com.teamsync.TeamSync.models.notifications.NotificationType;
 import com.teamsync.TeamSync.models.posts.Post;
 import com.teamsync.TeamSync.models.users.Image;
 import com.teamsync.TeamSync.models.users.User;
@@ -161,6 +162,16 @@ public class UserController {
         Image image = imageService.getImage(imageId);
         Resource resource = imageService.getFileFromFileSystem(image.getPath());
         return ResponseEntity.ok(resource);
+    }
+
+    @PutMapping("/{userId}/toggle-notification")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> toggleNotification(
+            @PathVariable Long userId,
+            @RequestParam NotificationType notificationType) {
+
+        User user = service.toggleNotification(userId, notificationType);
+        return new ResponseEntity<>(mapper.map(user, UserDTO.class), HttpStatus.OK);
     }
 
 }

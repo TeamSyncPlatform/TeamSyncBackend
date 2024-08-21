@@ -1,6 +1,7 @@
 package com.teamsync.TeamSync.services.users;
 
 import com.teamsync.TeamSync.models.groups.Group;
+import com.teamsync.TeamSync.models.notifications.NotificationType;
 import com.teamsync.TeamSync.models.users.User;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -17,4 +18,5 @@ public interface IUserService {
     Collection<Group> searchGroups(String userId, String searchValue);
     public Collection<User> searchEligibleUsers(Long groupId, String searchValue);
     User getByEmail(String email);
+    User toggleNotification(Long userId, NotificationType notificationType);
 }
