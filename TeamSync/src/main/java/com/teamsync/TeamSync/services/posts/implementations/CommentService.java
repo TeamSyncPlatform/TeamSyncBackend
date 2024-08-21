@@ -71,12 +71,17 @@ public class CommentService implements ICommentService {
                 user.getLastName()
         );
 
-        if(!Objects.equals(comment.getAuthor().getId(), comment.getPost().getAuthor().getId())){
+        if(!Objects.equals(comment.getAuthor().getId(), comment.getPost().getAuthor().getId())
+        && !isIgnoredNotification(comment.getPost().getAuthor(), NotificationType.Comment)){
             notificationService.create(new Notification(notificationMessage, NotificationType.Comment, new Date(), comment.getPost().getAuthor()));
         }
 
 
         return savedComment;
+    }
+
+    private boolean isIgnoredNotification(User user, NotificationType notificationType) {
+        return user.getIgnoredNotifications().contains(notificationType);
     }
 
     @Override
@@ -122,7 +127,8 @@ public class CommentService implements ICommentService {
                 reaction.getType()
         );
 
-        if(reaction.getUserId() != comment.getAuthor().getId()){
+        if(reaction.getUserId() != comment.getAuthor().getId()
+        && !isIgnoredNotification(comment.getAuthor(), NotificationType.Reaction)){
             notificationService.create(new Notification(notificationMessage, NotificationType.Reaction, new Date(), comment.getAuthor()));
         }
 
