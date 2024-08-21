@@ -109,11 +109,15 @@ public class PostService implements IPostService {
                 reaction.getType()
         );
 
-        if(reaction.getUserId() != post.getAuthor().getId()){
+        if(reaction.getUserId() != post.getAuthor().getId() && !isIgnoredNotification(post.getAuthor(), NotificationType.Reaction)){
             notificationService.create(new Notification(notificationMessage, NotificationType.Reaction, new Date(), post.getAuthor()));
         }
 
         return filterDeletedComments(postRepository.save(post));
+    }
+
+    private boolean isIgnoredNotification(User user, NotificationType notificationType) {
+        return user.getIgnoredNotifications().contains(notificationType);
     }
 
     @Override

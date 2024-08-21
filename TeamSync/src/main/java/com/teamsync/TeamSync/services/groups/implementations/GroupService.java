@@ -101,9 +101,18 @@ public class GroupService implements IGroupService {
         user.addGroup(group);
         groupRepository.save(group);
         userRepository.save(user);
+
+        String notificationMessage = String.format(
+                "You have been added to the group %s",
+                group.getName()
+        );
+
+        if (!isIgnoredNotification(user, NotificationType.Announcement)) {
+            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        }
     }
 
-    public void addMember(Long groupId, String externalIdentification){
+    public void addMember(Long groupId, String externalIdentification) {
         Group group = getExistingGroup(groupId);
         User user = getExistingUser(externalIdentification);
         group.addMember(user);
@@ -116,7 +125,13 @@ public class GroupService implements IGroupService {
                 group.getName()
         );
 
-        notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        if (!isIgnoredNotification(user, NotificationType.Announcement)) {
+            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        }
+    }
+
+    private boolean isIgnoredNotification(User user, NotificationType notificationType) {
+        return user.getIgnoredNotifications().contains(notificationType);
     }
 
     public void removeMember(Long groupId, Long userId){
@@ -136,8 +151,9 @@ public class GroupService implements IGroupService {
                 "You have been removed from the group %s",
                 group.getName()
         );
-
-        notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        if (!isIgnoredNotification(user, NotificationType.Announcement)){
+            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        }
     }
 
     @Override
@@ -153,6 +169,14 @@ public class GroupService implements IGroupService {
         user.removeGroup(group);
         groupRepository.save(group);
         userRepository.save(user);
+
+        String notificationMessage = String.format(
+                "You have been removed from the group %s",
+                group.getName()
+        );
+        if (!isIgnoredNotification(user, NotificationType.Announcement)){
+            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        }
     }
 
     @Override
