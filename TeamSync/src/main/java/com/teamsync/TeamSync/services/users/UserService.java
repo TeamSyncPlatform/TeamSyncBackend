@@ -1,12 +1,14 @@
 package com.teamsync.TeamSync.services.users;
 
 import com.teamsync.TeamSync.models.groups.Group;
+import com.teamsync.TeamSync.models.notifications.NotificationType;
 import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.groups.IGroupRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -64,6 +66,7 @@ public class UserService implements IUserService {
         user.setJobTitle(updatedUser.getJobTitle());
         user.setSkills(updatedUser.getSkills());
         user.setProfileImage(updatedUser.getProfileImage());
+        user.setIgnoredNotifications(updatedUser.getIgnoredNotifications());
 
         return userRepository.save(user);
     }
@@ -131,6 +134,18 @@ public class UserService implements IUserService {
     public User getByEmail(String email) {
         return userRepository.getUserByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    @Override
+    public User toggleNotification(Long userId, NotificationType notificationType) {
+        User user = get(userId);
+        if (user.getIgnoredNotifications().contains(notificationType)) {
+            user.getIgnoredNotifications().remove(notificationType);
+        } else {
+            user.getIgnoredNotifications().add(notificationType);
+        }
+
+        return update(user);
     }
 
     private List<User> filterUsersBySearchValue(List<User> users, String searchValue) {
