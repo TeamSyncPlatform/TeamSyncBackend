@@ -101,6 +101,15 @@ public class GroupService implements IGroupService {
         user.addGroup(group);
         groupRepository.save(group);
         userRepository.save(user);
+
+        String notificationMessage = String.format(
+                "You have been added to the group %s",
+                group.getName()
+        );
+
+        if (!isIgnoredNotification(user, NotificationType.Announcement)) {
+            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        }
     }
 
     public void addMember(Long groupId, String externalIdentification) {
@@ -160,6 +169,14 @@ public class GroupService implements IGroupService {
         user.removeGroup(group);
         groupRepository.save(group);
         userRepository.save(user);
+
+        String notificationMessage = String.format(
+                "You have been removed from the group %s",
+                group.getName()
+        );
+        if (!isIgnoredNotification(user, NotificationType.Announcement)){
+            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        }
     }
 
     @Override
