@@ -51,6 +51,7 @@ public class User{
 
     private String role = "user";
 
+    @ElementCollection
     private Set<NotificationType> ignoredNotifications = new HashSet<NotificationType>();
 
     public void addGroup(Group group){

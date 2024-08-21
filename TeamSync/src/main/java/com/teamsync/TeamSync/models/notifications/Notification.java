@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.models.notifications;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.teamsync.TeamSync.models.users.User;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,7 +24,8 @@ public class Notification {
 
     private Boolean isRead = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    @JsonBackReference
     private User user;
 
     public Notification(String message, NotificationType type, Date creationDate, User user) {
