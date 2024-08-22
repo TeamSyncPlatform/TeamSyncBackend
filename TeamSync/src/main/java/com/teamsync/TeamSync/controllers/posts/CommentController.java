@@ -5,7 +5,9 @@ import com.teamsync.TeamSync.dtos.posts.comment.CreateCommentDTO;
 import com.teamsync.TeamSync.dtos.posts.comment.UpdateCommentDTO;
 import com.teamsync.TeamSync.models.posts.Comment;
 import com.teamsync.TeamSync.models.posts.Reaction;
+import com.teamsync.TeamSync.services.notifications.INotificationService;
 import com.teamsync.TeamSync.services.posts.interfaces.ICommentService;
+import com.teamsync.TeamSync.services.users.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class CommentController {
     private final ICommentService service;
     private final ModelMapper mapper;
+    private final IUserService userService;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -47,7 +50,9 @@ public class CommentController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CommentDTO> create(@RequestBody CreateCommentDTO comment) {
-        return new ResponseEntity<>(mapper.map(service.create(mapper.map(comment, Comment.class)), CommentDTO.class), HttpStatus.CREATED);
+        Comment createdComment = service.create(mapper.map(comment, Comment.class));
+        service.notifyTaggedUsers(createdComment);
+        return new ResponseEntity<>(mapper.map(createdComment, CommentDTO.class), HttpStatus.CREATED);
     }
 
     @PutMapping

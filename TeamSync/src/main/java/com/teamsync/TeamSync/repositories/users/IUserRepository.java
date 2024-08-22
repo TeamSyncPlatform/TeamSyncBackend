@@ -18,4 +18,6 @@ public interface IUserRepository extends JpaRepository<User, Long> {
     Optional<User> getUserByEmail(String email);
     @Query("SELECT u FROM User u WHERE :group NOT MEMBER OF u.groups AND u.isDeleted = false")
     List<User> findEligibleUsersForGroup(@Param("group") Group group);
+    @Query("SELECT u FROM User u WHERE :group MEMBER OF u.groups AND u.isDeleted = false")
+    List<User> findAllUsersInGroup(@Param("group") Group group);
 }

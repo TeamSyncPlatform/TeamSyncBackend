@@ -19,4 +19,5 @@ public interface IUserService {
     public Collection<User> searchEligibleUsers(Long groupId, String searchValue);
     User getByEmail(String email);
     User toggleNotification(Long userId, NotificationType notificationType);
+    Collection<User> searchUsersInGroup(Long groupId, String searchValue);
 }

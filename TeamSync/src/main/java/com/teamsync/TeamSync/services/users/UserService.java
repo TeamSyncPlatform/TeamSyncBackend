@@ -8,7 +8,6 @@ import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -128,6 +127,16 @@ public class UserService implements IUserService {
         List<User> eligibleUsers = userRepository.findEligibleUsersForGroup(group);
 
         return filterUsersBySearchValue(eligibleUsers, searchValue);
+    }
+
+    @Override
+    public Collection<User> searchUsersInGroup(Long groupId, String searchValue) {
+        Group group = groupRepository.findByIdAndIsDeletedFalse(groupId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Group not found"));
+
+        List<User> users = userRepository.findAllUsersInGroup(group);
+
+        return filterUsersBySearchValue(users, searchValue);
     }
 
     @Override
