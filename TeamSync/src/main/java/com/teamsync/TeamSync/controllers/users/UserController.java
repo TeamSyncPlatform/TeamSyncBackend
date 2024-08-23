@@ -141,6 +141,17 @@ public class UserController {
         return new ResponseEntity<>(userResponses, HttpStatus.OK);
     }
 
+    @PutMapping("/groups/{groupId}/search-users")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<UserDTO>> searchUsersInGroup(@PathVariable Long groupId,
+                                                                   @RequestBody GroupSearchRequest request) {
+        Collection<User> users = service.searchUsersInGroup(groupId, request.getSearchValue());
+        Collection<UserDTO> userResponses = users.stream()
+                .map(user -> mapper.map(user, UserDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(userResponses, HttpStatus.OK);
+    }
+
     @PostMapping("/{userId}/upload-image")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDTO> uploadImage(@PathVariable Long userId, @RequestParam("file") MultipartFile file) throws IOException {

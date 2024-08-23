@@ -13,6 +13,10 @@ import com.teamsync.TeamSync.services.notifications.INotificationService;
 import com.teamsync.TeamSync.services.posts.interfaces.ICommentService;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.hibernate.Hibernate;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class CommentService implements ICommentService {
@@ -142,6 +149,45 @@ public class CommentService implements ICommentService {
         comment.removeReaction(reaction);
         return commentRepository.save(comment);
     }
+
+    @Override
+    public void notifyTaggedUsers(Comment comment) {
+        String content = comment.getContent();
+
+        Document document = Jsoup.parse(content);
+        Elements mentions = document.select("b[data-user-id]");
+
+        for (Element mention : mentions) {
+            String userIdString = mention.attr("data-user-id");
+            Long userId;
+
+            try {
+                userId = Long.valueOf(userIdString);
+            } catch (NumberFormatException e) {
+                continue;
+            }
+
+            Optional<User> optionalUser = userRepository.findById(userId);
+
+            if (optionalUser.isPresent()) {
+                User taggedUser = optionalUser.get();
+
+                String notificationMessage = String.format(
+                        "%s#%s  -  You were mentioned in a comment by %s %s",
+                        comment.getPost().getChannel().getGroup().getName(),
+                        comment.getPost().getChannel().getName(),
+                        comment.getAuthor().getFirstName(),
+                        comment.getAuthor().getLastName()
+                );
+
+                if (!isIgnoredNotification(taggedUser, NotificationType.Mention)) {
+                    Notification notification = new Notification(notificationMessage, NotificationType.Mention, new Date(), taggedUser);
+                    notificationService.create(notification);
+                }
+            }
+        }
+    }
+
 
     private Comment getExistingComment(Long commentId){
         Comment comment = commentRepository.findById(commentId)
