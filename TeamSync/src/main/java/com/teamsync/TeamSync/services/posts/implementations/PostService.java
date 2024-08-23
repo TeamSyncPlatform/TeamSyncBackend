@@ -1,5 +1,9 @@
 package com.teamsync.TeamSync.services.posts.implementations;
 
+import com.teamsync.TeamSync.dtos.groups.channel.ChannelDTO;
+import com.teamsync.TeamSync.dtos.groups.group.GroupDTO;
+import com.teamsync.TeamSync.dtos.notifications.NewPostNotificationDTO;
+import com.teamsync.TeamSync.dtos.users.UserDTO;
 import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.notifications.Notification;
 import com.teamsync.TeamSync.models.notifications.NotificationType;
@@ -14,6 +18,7 @@ import com.teamsync.TeamSync.services.notifications.INotificationService;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.hibernate.Hibernate;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +47,9 @@ public class PostService implements IPostService {
     @Autowired
     private INotificationService notificationService;
 
+    @Autowired
+    private ModelMapper mapper;
+
     @Override
     public Collection<Post> getAll() {
         Collection<Post> posts = postRepository.findByIsDeletedFalse();
@@ -68,6 +76,15 @@ public class PostService implements IPostService {
 
 //        channel.addPost(post);
 //        channelRepository.save(channel);
+
+        for (User member: channel.getGroup().getMembers().values()) {
+            notificationService.sendNewPostNotification(new NewPostNotificationDTO(
+                    mapper.map(channel.getGroup(), GroupDTO.class),
+                    mapper.map(channel, ChannelDTO.class),
+                    mapper.map(user, UserDTO.class),
+                    mapper.map(member, UserDTO.class)
+            ));
+        }
 
         return filterDeletedComments(postRepository.save(post));
     }

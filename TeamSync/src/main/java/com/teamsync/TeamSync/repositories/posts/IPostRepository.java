@@ -8,9 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IPostRepository extends JpaRepository<Post, Long> {
@@ -26,4 +28,12 @@ public interface IPostRepository extends JpaRepository<Post, Long> {
     List<Post> findByCreationDateBetweenAndChannelGroupIsDeletedFalse(Date startDate, Date endDate);
     List<Post> findAllByChannelGroupIdAndCreationDateBetween(Long groupId, Date startDate, Date date);
     Long countByChannelGroupIdAndCreationDateBetween(Long id, Date startDate, Date endDate);
+
+    Optional<Post> findTopByChannelIdOrderByIdDesc(Long id);
+
+    Long countByChannelId(Long channelId);
+
+    @Query("SELECT COUNT(p) FROM Post p WHERE p.isDeleted = false AND p.channel.id = :channelId AND p.creationDate > :lastReadTimestamp")
+    Long countUnreadPostsAfterDate(@Param("channelId") Long channelId, @Param("lastReadTimestamp") LocalDateTime lastReadTimestamp);
+
 }

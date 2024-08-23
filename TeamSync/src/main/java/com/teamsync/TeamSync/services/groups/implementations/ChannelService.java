@@ -10,6 +10,7 @@ import com.teamsync.TeamSync.repositories.groups.IChannelRepository;
 import com.teamsync.TeamSync.repositories.groups.IGroupRepository;
 import com.teamsync.TeamSync.repositories.posts.IPostRepository;
 import com.teamsync.TeamSync.services.groups.interfaces.IChannelService;
+import com.teamsync.TeamSync.services.posts.interfaces.IUnreadPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,9 @@ public class ChannelService implements IChannelService {
 
     @Autowired
     private IGroupRepository groupRepository;
+
+    @Autowired
+    private IUnreadPostService unreadPostService;
 
     @Override
     public Collection<Channel> getAll() {
@@ -51,6 +55,8 @@ public class ChannelService implements IChannelService {
         // Update the group's channels list
         group.addChannel(savedChannel);
         groupRepository.save(group);
+
+        unreadPostService.initializeUnreadPostsForNewChannel(channel.getId());
 
         return filterDeletedPosts(savedChannel);
     }

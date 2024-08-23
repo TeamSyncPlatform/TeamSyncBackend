@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.services.notifications;
 
+import com.teamsync.TeamSync.dtos.notifications.NewPostNotificationDTO;
 import com.teamsync.TeamSync.models.notifications.Notification;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,4 +16,5 @@ public interface INotificationService {
     Integer getUnreadCountByUserId(Long userId);
     Notification read(Long notificationId);
     Collection<Notification> readAllByUserId(Long userId);
+    public void sendNewPostNotification(NewPostNotificationDTO newPostNotification);
 }
