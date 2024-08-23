@@ -9,6 +9,7 @@ import com.teamsync.TeamSync.repositories.groups.IGroupRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.groups.interfaces.IGroupService;
 import com.teamsync.TeamSync.services.notifications.INotificationService;
+import com.teamsync.TeamSync.services.posts.interfaces.IUnreadPostService;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,9 @@ public class GroupService implements IGroupService {
 
     @Autowired
     private INotificationService notificationService;
+
+    @Autowired
+    private IUnreadPostService unreadPostService;
 
     @Override
     public Collection<Group> getAll() {
@@ -110,6 +114,8 @@ public class GroupService implements IGroupService {
         if (!isIgnoredNotification(user, NotificationType.Announcement)) {
             notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
         }
+
+        unreadPostService.initializeUnreadPostsForNewGroupMember(userId, groupId);
     }
 
     public void addMember(Long groupId, String externalIdentification) {
@@ -128,6 +134,8 @@ public class GroupService implements IGroupService {
         if (!isIgnoredNotification(user, NotificationType.Announcement)) {
             notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
         }
+
+        unreadPostService.initializeUnreadPostsForNewGroupMember(user.getId(), groupId);
     }
 
     private boolean isIgnoredNotification(User user, NotificationType notificationType) {
@@ -154,6 +162,8 @@ public class GroupService implements IGroupService {
         if (!isIgnoredNotification(user, NotificationType.Announcement)){
             notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
         }
+
+        unreadPostService.removeUnreadPostsForGroupMember(userId, groupId);
     }
 
     @Override
@@ -177,6 +187,8 @@ public class GroupService implements IGroupService {
         if (!isIgnoredNotification(user, NotificationType.Announcement)){
             notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
         }
+
+        unreadPostService.removeUnreadPostsForGroupMember(user.getId(), groupId);
     }
 
     @Override
