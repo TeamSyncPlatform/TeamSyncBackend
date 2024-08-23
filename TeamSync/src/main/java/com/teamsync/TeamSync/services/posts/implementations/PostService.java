@@ -1,5 +1,9 @@
 package com.teamsync.TeamSync.services.posts.implementations;
 
+import com.teamsync.TeamSync.dtos.groups.channel.ChannelDTO;
+import com.teamsync.TeamSync.dtos.groups.group.GroupDTO;
+import com.teamsync.TeamSync.dtos.notifications.NewPostNotificationDTO;
+import com.teamsync.TeamSync.dtos.users.UserDTO;
 import com.teamsync.TeamSync.models.groups.Channel;
 import com.teamsync.TeamSync.models.notifications.Notification;
 import com.teamsync.TeamSync.models.notifications.NotificationType;
@@ -12,8 +16,10 @@ import com.teamsync.TeamSync.repositories.posts.IPostRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.notifications.INotificationService;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
+import com.teamsync.TeamSync.services.posts.interfaces.IUnreadPostService;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.hibernate.Hibernate;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +48,12 @@ public class PostService implements IPostService {
     @Autowired
     private INotificationService notificationService;
 
+    @Autowired
+    private IUnreadPostService unreadPostService;
+
+    @Autowired
+    private ModelMapper mapper;
+
     @Override
     public Collection<Post> getAll() {
         Collection<Post> posts = postRepository.findByIsDeletedFalse();
@@ -69,7 +81,20 @@ public class PostService implements IPostService {
 //        channel.addPost(post);
 //        channelRepository.save(channel);
 
-        return filterDeletedComments(postRepository.save(post));
+        for (User member: channel.getGroup().getMembers().values()) {
+            notificationService.sendNewPostNotification(new NewPostNotificationDTO(
+                    mapper.map(channel.getGroup(), GroupDTO.class),
+                    mapper.map(channel, ChannelDTO.class),
+                    mapper.map(user, UserDTO.class),
+                    mapper.map(member, UserDTO.class)
+            ));
+        }
+
+        Post createdPost = postRepository.save(post);
+
+        unreadPostService.updateLastReadTimestamp(user.getId(), channel.getId());
+
+        return filterDeletedComments(createdPost);
     }
 
     @Override

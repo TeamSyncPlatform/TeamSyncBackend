@@ -58,12 +58,13 @@ public class GroupController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<GroupDTO> create(@RequestBody CreateGroupDTO group) {
         Group createdGroup = service.create(mapper.map(group, Group.class));
-        service.addMember(createdGroup.getId(), userUtils.getLoggedUser().getExternalIdentification());
+//        service.addMember(createdGroup.getId(), userUtils.getLoggedUser().getExternalIdentification());
         service.setGroupOwner(createdGroup.getId(), userUtils.getLoggedUser().getExternalIdentification());
         Channel channel = new Channel();
         channel.setName("General");
         channel.setGroup(createdGroup);
         channelService.create(channel);
+        service.addMember(createdGroup.getId(), userUtils.getLoggedUser().getExternalIdentification());
         return new ResponseEntity<>(mapper.map(createdGroup, GroupDTO.class), HttpStatus.CREATED);
     }
 

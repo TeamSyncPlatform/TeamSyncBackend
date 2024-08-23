@@ -1,5 +1,6 @@
 package com.teamsync.TeamSync.services.notifications;
 
+import com.teamsync.TeamSync.dtos.notifications.NewPostNotificationDTO;
 import com.teamsync.TeamSync.models.notifications.Notification;
 import com.teamsync.TeamSync.models.users.User;
 import com.teamsync.TeamSync.repositories.notifications.INotificationRepository;
@@ -98,6 +99,11 @@ public class NotificationService implements INotificationService {
 
     private void sendNotification(Notification notification) {
         simpMessagingTemplate.convertAndSend("/notification-publisher/" + notification.getUser().getId(), notification);
+    }
+
+    @Override
+    public void sendNewPostNotification(NewPostNotificationDTO newPostNotification) {
+        simpMessagingTemplate.convertAndSend("/post-publisher/" + newPostNotification.getUser().getId(), newPostNotification);
     }
 
 }

@@ -185,4 +185,14 @@ public class UserController {
         return new ResponseEntity<>(mapper.map(user, UserDTO.class), HttpStatus.OK);
     }
 
+    @GetMapping("/{userId}/groups")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Collection<GroupDTO>> getUserGroups(@PathVariable Long userId) {
+        User user = service.get(userId);
+        Collection<GroupDTO> groupResponses = user.getGroups().stream()
+                .map(group -> mapper.map(group, GroupDTO.class))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(groupResponses, HttpStatus.OK);
+    }
+
 }
