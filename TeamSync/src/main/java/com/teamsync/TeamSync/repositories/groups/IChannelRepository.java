@@ -13,6 +13,5 @@ import java.util.Optional;
 public interface IChannelRepository extends JpaRepository<Channel, Long> {
     Collection<Channel> findByIsDeletedFalse();
     Optional<Channel> findByNameAndIsDeletedFalse(String name);
-
     List<Channel> findAllByGroupId(Long groupId);
 }

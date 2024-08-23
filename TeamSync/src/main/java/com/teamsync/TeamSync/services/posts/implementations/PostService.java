@@ -16,6 +16,7 @@ import com.teamsync.TeamSync.repositories.posts.IPostRepository;
 import com.teamsync.TeamSync.repositories.users.IUserRepository;
 import com.teamsync.TeamSync.services.notifications.INotificationService;
 import com.teamsync.TeamSync.services.posts.interfaces.IPostService;
+import com.teamsync.TeamSync.services.posts.interfaces.IUnreadPostService;
 import com.teamsync.TeamSync.utils.UserUtils;
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
@@ -46,6 +47,9 @@ public class PostService implements IPostService {
 
     @Autowired
     private INotificationService notificationService;
+
+    @Autowired
+    private IUnreadPostService unreadPostService;
 
     @Autowired
     private ModelMapper mapper;
@@ -86,7 +90,11 @@ public class PostService implements IPostService {
             ));
         }
 
-        return filterDeletedComments(postRepository.save(post));
+        Post createdPost = postRepository.save(post);
+
+        unreadPostService.updateLastReadTimestamp(user.getId(), channel.getId());
+
+        return filterDeletedComments(createdPost);
     }
 
     @Override

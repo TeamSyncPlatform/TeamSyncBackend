@@ -34,6 +34,8 @@ public class ChannelService implements IChannelService {
     @Autowired
     private IUnreadPostService unreadPostService;
 
+
+
     @Override
     public Collection<Channel> getAll() {
         return channelRepository.findByIsDeletedFalse().stream()
