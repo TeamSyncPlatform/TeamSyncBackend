@@ -16,4 +16,5 @@ public interface ICommentService {
     Comment removeLogical(Long commentId);
     Comment addReaction(Long commentId, Reaction reaction);
     Comment removeReaction(Long commentId, Reaction reaction);
+    void notifyTaggedUsers(Comment createdComment);
 }
