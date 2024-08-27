@@ -4,5 +4,6 @@ public enum NotificationType {
     Mention,
     Comment,
     Reaction,
-    Announcement
+    Announcement,
+    GroupsStatus
 }

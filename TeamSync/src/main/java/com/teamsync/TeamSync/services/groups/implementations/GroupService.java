@@ -111,8 +111,8 @@ public class GroupService implements IGroupService {
                 group.getName()
         );
 
-        if (!isIgnoredNotification(user, NotificationType.Announcement)) {
-            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        if (!isIgnoredNotification(user, NotificationType.GroupsStatus)) {
+            notificationService.create(new Notification(notificationMessage, NotificationType.GroupsStatus, new Date(), user));
         }
 
         unreadPostService.initializeUnreadPostsForNewGroupMember(userId, groupId);
@@ -131,8 +131,8 @@ public class GroupService implements IGroupService {
                 group.getName()
         );
 
-        if (!isIgnoredNotification(user, NotificationType.Announcement)) {
-            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        if (!isIgnoredNotification(user, NotificationType.GroupsStatus)) {
+            notificationService.create(new Notification(notificationMessage, NotificationType.GroupsStatus, new Date(), user));
         }
 
         unreadPostService.initializeUnreadPostsForNewGroupMember(user.getId(), groupId);
@@ -159,8 +159,8 @@ public class GroupService implements IGroupService {
                 "You have been removed from the group %s",
                 group.getName()
         );
-        if (!isIgnoredNotification(user, NotificationType.Announcement)){
-            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        if (!isIgnoredNotification(user, NotificationType.GroupsStatus)){
+            notificationService.create(new Notification(notificationMessage, NotificationType.GroupsStatus, new Date(), user));
         }
 
         unreadPostService.removeUnreadPostsForGroupMember(userId, groupId);
@@ -184,8 +184,8 @@ public class GroupService implements IGroupService {
                 "You have been removed from the group %s",
                 group.getName()
         );
-        if (!isIgnoredNotification(user, NotificationType.Announcement)){
-            notificationService.create(new Notification(notificationMessage, NotificationType.Announcement, new Date(), user));
+        if (!isIgnoredNotification(user, NotificationType.GroupsStatus)){
+            notificationService.create(new Notification(notificationMessage, NotificationType.GroupsStatus, new Date(), user));
         }
 
         unreadPostService.removeUnreadPostsForGroupMember(user.getId(), groupId);

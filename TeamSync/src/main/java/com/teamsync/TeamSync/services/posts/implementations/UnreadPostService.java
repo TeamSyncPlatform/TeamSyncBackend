@@ -12,6 +12,7 @@ import com.teamsync.TeamSync.services.posts.interfaces.IUnreadPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -83,6 +84,7 @@ public class UnreadPostService implements IUnreadPostService {
     }
 
     @Override
+    @Transactional
     public void removeUnreadPostsForGroupMember(Long userId, Long groupId) {
         List<Channel> channels = channelRepository.findAllByGroupId(groupId);
 
