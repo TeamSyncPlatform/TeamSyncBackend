@@ -1,0 +1,30 @@
+server:
+  port: 18090
+  servlet:
+    context-path: /
+  error:
+    include-stacktrace: never
+
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      # deals with single and multi-valued JWT claims
+      accept-single-value-as-array: true
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          introspection-uri: 'https://zitadel.tiacgroup.com/oauth/v2/introspect'
+          client-id: '279398622066442246@p2-app'
+          client-secret: 'eQF2oGUm03aabGhLUn7vWCROk0dCDDgm3VgU5uxjdXZIH0Dha45m1TgRmtTm6AVM'
+
+logging:
+  level:
+    root: info
+    demo: debug
+    org:
+      springframework:
+        web: info
+        security: debug
